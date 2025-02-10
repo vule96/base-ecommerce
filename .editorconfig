@@ -1,0 +1,31 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{ts,js}]
+# Cấu hình cho TypeScript và JavaScript
+indent_size = 2
+
+[*.json]
+# JSON nên có indent_size là 2 và không cắt khoảng trắng cuối dòng
+indent_size = 2
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+# YAML thường có indent_size = 2 theo best practice
+indent_size = 2
+
+[*.md]
+# Markdown không cần giới hạn độ dài dòng
+max_line_length = off
+trim_trailing_whitespace = false
+
+[*.{dockerfile,Dockerfile}]
+# Dockerfile nên dùng tab thay vì space
+indent_style = tab

@@ -1,25 +1,24 @@
 import type { NextFunction, Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
-import { CustomError, type IError } from '~/utils/error';
+import { isProduction } from '~/utils';
+import { AppError, ErrInternalServer } from '~/utils/error';
 import logger from '~/utils/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const errorHandler = (error: IError, request: Request, response: Response, _next: NextFunction) => {
-  if (error instanceof CustomError) {
+export const errorHandler = (error: Error, request: Request, response: Response, _next: NextFunction) => {
+  if (error instanceof AppError) {
+    const appErr = error as AppError;
     logger.error(
-      `Error: ${error.statusCode} - ${error.message} - ${request.originalUrl} - ${request.method} - ${request.ip}`
+      `Error: ${error.getStatusCode()} - ${error.message} - ${request.originalUrl} - ${request.method} - ${request.ip}`
     );
-    response.status(error.statusCode).json(error.serializeErrors());
+    response.status(appErr.getStatusCode()).json(appErr.toJSON(isProduction));
     return;
   }
 
+  const appErr = ErrInternalServer.wrap(error);
+
   logger.error(
-    `Error: ${error.message} - ${request.originalUrl} - ${request.method} - ${request.ip} \n ${error.stack}`
+    `Error: ${appErr.message} - ${request.originalUrl} - ${request.method} - ${request.ip} \n ${error.stack}`
   );
 
-  response.status(500).json({
-    status: 'error',
-    statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-    message: 'Internal server error'
-  });
+  response.status(appErr.getStatusCode()).json(appErr.toJSON(isProduction));
 };

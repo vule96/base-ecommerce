@@ -97,14 +97,3 @@ export class RedisClient {
     }
   }
 }
-
-process.on('SIGINT', async () => {
-  logger.info('Received SIGINT signal.  Disconnecting from redis...');
-  try {
-    await RedisClient.close();
-    process.exit(0);
-  } catch (error) {
-    logger.error(`Error during Redis disconnect: ${(error as Error).message}`);
-    process.exit(1);
-  }
-});

@@ -14,6 +14,7 @@ class Config {
   public POSTGRES_USER: string | undefined;
   public POSTGRES_PASSWORD: string | undefined;
   public POSTGRES_DB: string | undefined;
+  public DATABASE_URL: string | undefined;
   public REDIS_HOST: string | undefined;
   public REDIS_PORT: number;
   public REDIS_PASSWORD: string | undefined;
@@ -32,6 +33,7 @@ class Config {
     this.POSTGRES_USER = process.env.POSTGRES_USER || '';
     this.POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || '';
     this.POSTGRES_DB = process.env.POSTGRES_DB || '';
+    this.DATABASE_URL = process.env.DATABASE_URL || '';
     this.REDIS_HOST = process.env.REDIS_HOST || 'localhost';
     this.REDIS_PORT = parseInt(process.env.REDIS_PORT as string) || 6379;
     this.REDIS_PASSWORD = process.env.REDIS_PASSWORD || '';

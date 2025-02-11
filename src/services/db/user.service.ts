@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
 import { ErrUsernameExisted } from '~/modules/auth/error';
+import type { UserRegistrationDTO } from '~/modules/user/schema/user.schema';
 import { UserRole } from '~/shared/interface';
 import { firstLetterUppercase, lowerCase } from '~/utils/helpers';
 
@@ -75,9 +76,7 @@ class UserService {
     }) as Promise<Pick<Users, Key> | null>;
   };
 
-  public createUser = async (
-    data: Pick<Users, 'id' | 'email' | 'username' | 'firstName' | 'lastName' | 'password'>
-  ): Promise<Users> => {
+  public createUser = async (data: UserRegistrationDTO): Promise<Users> => {
     // 1. Check username existed
     const existedUser = await userService.getUserByEmail(data.email);
     if (existedUser) {

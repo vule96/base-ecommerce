@@ -4,13 +4,14 @@ import crypto from 'crypto';
 import jwt, { JwtPayload } from '~/components/jwt';
 import { config } from '~/config';
 import { ErrInvalidUsernameAndPassword } from '~/modules/auth/error';
+import type { UserRegistrationDTO } from '~/modules/user/schema/user.schema';
 import { AppError, ErrInternalServer } from '~/utils/error';
 import { userService } from './user.service';
 
 class AuthService {
   public login = async (usernameOrEmail: string, password: string) => {
     // 1. Find user with username or email
-    const user = await userService.getUserByEmail(usernameOrEmail);
+    const user = await userService.getUserByUsernameOrEmail(usernameOrEmail);
 
     if (!user) {
       throw AppError.from(ErrInvalidUsernameAndPassword, 400).withLog('Username not found');
@@ -36,7 +37,7 @@ class AuthService {
     };
   };
 
-  public register = async (data: Pick<Users, 'id' | 'email' | 'username' | 'firstName' | 'lastName' | 'password'>) => {
+  public register = async (data: UserRegistrationDTO) => {
     const user = await userService.createUser(data);
     return user;
   };

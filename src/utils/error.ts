@@ -1,13 +1,10 @@
-import type { Response } from 'express';
-import { isProduction } from '~/utils';
-
 export interface IAppError {
   message: string;
   statusCode: number;
   rootCause?: string | Error;
   details: Record<string, string | number | object>;
   logMessage?: string;
-  stack?: string;
+  // stack?: string;
 }
 
 export class AppError extends Error {
@@ -15,11 +12,11 @@ export class AppError extends Error {
   private rootCause?: Error;
   private details: Record<string, string | number | object> = {};
   private logMessage?: string;
-  private stackTrace?: string;
+  // private stackTrace?: string;
 
   private constructor(err: Error, options?: ErrorOptions) {
     super(err.message, options);
-    this.stackTrace = err.stack;
+    // this.stackTrace = err.stack;
   }
 
   // Factory method (Design Pattern)
@@ -72,7 +69,7 @@ export class AppError extends Error {
     if (!isProduction) {
       errorResponse.rootCause = rootCause ? rootCause.message : this.message;
       errorResponse.logMessage = this.logMessage;
-      errorResponse.stack = this.stackTrace;
+      // errorResponse.stack = this.stackTrace;
     }
 
     return errorResponse;
@@ -82,31 +79,6 @@ export class AppError extends Error {
     return this.statusCode;
   }
 }
-
-// Util error function
-export const responseErr = (err: Error, res: Response) => {
-  if (err instanceof AppError) {
-    const appErr = err as AppError;
-    res.status(appErr.getStatusCode()).json(appErr.toJSON(isProduction));
-
-    return;
-  }
-
-  // if (err instanceof ZodError) {
-  //   const zErr = err as ZodError;
-  //   const appErr = ErrInvalidRequest.wrap(zErr);
-
-  //   zErr.issues.forEach((issue) => {
-  //     appErr.withDetail(issue.path.join('.'), issue.message);
-  //   });
-
-  //   res.status(appErr.getStatusCode()).json(appErr.toJSON(isProduction));
-  //   return;
-  // }
-
-  const appErr = ErrInternalServer.wrap(err);
-  res.status(appErr.getStatusCode()).json(appErr.toJSON(isProduction));
-};
 
 export const ErrInternalServer = AppError.from(new Error('Something went wrong, please try again later'), 500);
 export const ErrInvalidRequest = AppError.from(new Error('Invalid request'), 400);

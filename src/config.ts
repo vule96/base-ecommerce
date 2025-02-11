@@ -9,6 +9,10 @@ class Config {
   public LOG_FOLDER_PATH: string;
   public LOG_FILE_MAX_SIZE: string;
   public TZ: string | undefined;
+  public ACCESS_TOKEN_VALIDITY_SEC: number;
+  public REFRESH_TOKEN_VALIDITY_SEC: number;
+  public TOKEN_ISSUER: string | undefined;
+  public TOKEN_AUDIENCE: string | undefined;
   public POSTGRES_HOST: string | undefined;
   public POSTGRES_PORT: number;
   public POSTGRES_USER: string | undefined;
@@ -28,6 +32,10 @@ class Config {
     this.LOG_FOLDER_PATH = process.env.LOG_FOLDER_PATH || 'logs';
     this.LOG_FILE_MAX_SIZE = process.env.LOG_FILE_MAX_SIZE || '10485760';
     this.TZ = process.env.TZ || 'Asia/Ho_Chi_Minh';
+    this.ACCESS_TOKEN_VALIDITY_SEC = parseInt(process.env.ACCESS_TOKEN_VALIDITY_SEC as string) || 172800;
+    this.REFRESH_TOKEN_VALIDITY_SEC = parseInt(process.env.REFRESH_TOKEN_VALIDITY_SEC as string) || 604800;
+    this.TOKEN_ISSUER = process.env.TOKEN_ISSUER || '';
+    this.TOKEN_AUDIENCE = process.env.TOKEN_AUDIENCE || '';
     this.POSTGRES_HOST = process.env.POSTGRES_HOST || '';
     this.POSTGRES_PORT = parseInt(process.env.POSTGRES_PORT as string) || 5432;
     this.POSTGRES_USER = process.env.POSTGRES_USER || '';

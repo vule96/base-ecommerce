@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { health } from '~/controllers/health';
+import { health } from '~/modules/health/health';
 
 const router: Router = express.Router();
 

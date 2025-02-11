@@ -1,6 +1,6 @@
 import morgan, { StreamOptions } from 'morgan';
 import os from 'os';
-import { config } from '~/config';
+import { isDevelopment } from '~/utils';
 import logger from '~/utils/logger';
 
 const stream: StreamOptions = {
@@ -8,7 +8,7 @@ const stream: StreamOptions = {
 };
 
 const skip = () => {
-  return config.NODE_ENV !== 'development';
+  return !isDevelopment;
 };
 
 export const morganMiddleware = morgan(':method :url :status :res[content-length] - :response-time ms', {

@@ -1,7 +1,7 @@
 import { Application } from 'express';
-import { authRoutes } from '~/modules/auth/route/auth.route';
+import { authRoutes } from '~/modules/auth/auth.route';
 import { healthRoutes } from '~/modules/health/route/health.route';
-import { userRoutes } from '~/modules/user/route/user.route';
+import { userRoutes } from '~/modules/user/user.route';
 
 const BASE_PATH = '/api/v1';
 

@@ -4,9 +4,8 @@ import {
   ErrFirstNameAtLeast2Chars,
   ErrLastNameAtLeast2Chars,
   ErrPasswordAtLeast6Chars,
-  ErrRoleInvalid,
-  ErrUsernameInvalid
-} from '~/modules/user/error';
+  ErrRoleInvalid
+} from '~/modules/user/user.error';
 import { UserRole } from '~/shared/interface';
 
 export const userSchema = z.object({
@@ -17,8 +16,8 @@ export const userSchema = z.object({
   username: z
     .string()
     .min(3, 'Username must not be less than 3 characters')
-    .max(25, 'Username must not be greater than 25 characters')
-    .regex(/^[a-zA-Z0-9_]+$/, ErrUsernameInvalid.message),
+    .max(25, 'Username must not be greater than 25 characters'),
+  // .regex(/^[a-zA-Z0-9_]+$/, ErrUsernameInvalid.message),
   password: z.string().min(6, ErrPasswordAtLeast6Chars.message),
   salt: z.string().min(8),
   role: z.nativeEnum(UserRole, ErrRoleInvalid),

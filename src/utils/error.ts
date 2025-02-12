@@ -1,3 +1,5 @@
+import { StatusCodes } from 'http-status-codes';
+
 export interface IAppError {
   message: string;
   statusCode: number;
@@ -80,9 +82,12 @@ export class AppError extends Error {
   }
 }
 
-export const ErrInternalServer = AppError.from(new Error('Something went wrong, please try again later'), 500);
-export const ErrInvalidRequest = AppError.from(new Error('Invalid request'), 400);
-export const ErrUnauthorized = AppError.from(new Error('Unauthorized'), 401);
-export const ErrForbidden = AppError.from(new Error('Forbidden'), 403);
-export const ErrNotFound = AppError.from(new Error('Not found'), 404);
-export const ErrMethodNotAllowed = AppError.from(new Error('Method not allowed'), 405);
+export const ErrInternalServer = AppError.from(
+  new Error('Something went wrong, please try again later'),
+  StatusCodes.INTERNAL_SERVER_ERROR
+);
+export const ErrInvalidRequest = AppError.from(new Error('Invalid request'), StatusCodes.BAD_REQUEST);
+export const ErrUnauthorized = AppError.from(new Error('Unauthorized'), StatusCodes.UNAUTHORIZED);
+export const ErrForbidden = AppError.from(new Error('Forbidden'), StatusCodes.FORBIDDEN);
+export const ErrNotFound = AppError.from(new Error('Not found'), StatusCodes.NOT_FOUND);
+export const ErrMethodNotAllowed = AppError.from(new Error('Method not allowed'), StatusCodes.METHOD_NOT_ALLOWED);

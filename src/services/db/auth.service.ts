@@ -1,12 +1,13 @@
 import { Users } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import { StatusCodes } from 'http-status-codes';
 import jwt, { JwtPayload } from '~/components/jwt';
 import { config } from '~/config';
-import { ErrInvalidUsernameAndPassword } from '~/modules/auth/error';
-import type { UserRegistrationDTO } from '~/modules/user/schema/user.schema';
-import { AppError, ErrInternalServer } from '~/utils/error';
-import { userService } from './user.service';
+import { ErrInvalidUsernameAndPassword } from '~/modules/auth/auth.error';
+import type { UserRegistrationDTO } from '~/modules/user/user.schema';
+import { userService } from '~/services/db/user.service';
+import { AppError } from '~/utils/error';
 
 class AuthService {
   public login = async (usernameOrEmail: string, password: string) => {
@@ -14,13 +15,13 @@ class AuthService {
     const user = await userService.getUserByUsernameOrEmail(usernameOrEmail);
 
     if (!user) {
-      throw AppError.from(ErrInvalidUsernameAndPassword, 400).withLog('Username not found');
+      throw AppError.from(ErrInvalidUsernameAndPassword, StatusCodes.BAD_REQUEST).withLog('Username not found');
     }
 
     // 2. Check password
     const isMatch = await bcrypt.compare(`${password}.${user.salt}`, user.password);
     if (!isMatch) {
-      throw AppError.from(ErrInvalidUsernameAndPassword, 400).withLog('Password is incorrect');
+      throw AppError.from(ErrInvalidUsernameAndPassword, StatusCodes.BAD_REQUEST).withLog('Password is incorrect');
     }
 
     // if (user.status === Status.DELETED || user.status === Status.INACTIVE) {
@@ -64,7 +65,8 @@ class AuthService {
       )
     ]);
 
-    if (!accessToken || !refreshToken) throw ErrInternalServer;
+    if (!accessToken || !refreshToken)
+      throw AppError.from(new Error('An error occurred while generating tokens'), StatusCodes.INTERNAL_SERVER_ERROR);
 
     return { accessToken, refreshToken };
   };

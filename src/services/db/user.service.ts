@@ -2,8 +2,8 @@ import type { Users } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
-import { ErrUsernameExisted } from '~/modules/auth/error';
-import type { UserRegistrationDTO } from '~/modules/user/schema/user.schema';
+import { ErrUsernameExisted } from '~/modules/auth/auth.error';
+import type { UserRegistrationDTO } from '~/modules/user/user.schema';
 import { UserRole } from '~/shared/interface';
 import { firstLetterUppercase, lowerCase } from '~/utils/helpers';
 

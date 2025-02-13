@@ -7,10 +7,10 @@ class AuthController {
   public login = async (req: Request, res: Response) => {
     logger.info(`AuthController.login - request received`);
     const { username, password } = req.body;
-    const { accessToken, refreshToken } = await authService.login(username, password);
+    const data = await authService.login(username, password);
     new OkResponse({
       message: 'Login successfully',
-      metadata: { accessToken, refreshToken }
+      metadata: data
     }).send(res);
   };
   public register = async (req: Request, res: Response) => {

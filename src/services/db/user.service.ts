@@ -1,14 +1,14 @@
-import type { Users } from '@prisma/client';
+import type { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
 import { ErrUsernameExisted } from '~/modules/auth/auth.error';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
-import { UserRole } from '~/shared/interface';
-import { firstLetterUppercase, lowerCase } from '~/utils/helpers';
+import { Status, UserRole } from '~/shared/interface';
+import { lowerCase } from '~/utils/helpers';
 
 class UserService {
-  public getUserByEmail = async <Key extends keyof Users>(
+  public getUserByEmail = async <Key extends keyof User>(
     email: string,
     keys: Key[] = [
       'id',
@@ -23,14 +23,14 @@ class UserService {
       'createdAt',
       'updatedAt'
     ] as Key[]
-  ): Promise<Pick<Users, Key> | null> => {
-    return prisma.users.findUnique({
+  ): Promise<Pick<User, Key> | null> => {
+    return prisma.user.findUnique({
       where: { email },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    }) as Promise<Pick<Users, Key> | null>;
+    }) as Promise<Pick<User, Key> | null>;
   };
 
-  public getUserByUsername = async <Key extends keyof Users>(
+  public getUserByUsername = async <Key extends keyof User>(
     username: string,
     keys: Key[] = [
       'id',
@@ -45,14 +45,14 @@ class UserService {
       'createdAt',
       'updatedAt'
     ] as Key[]
-  ): Promise<Pick<Users, Key> | null> => {
-    return prisma.users.findUnique({
+  ): Promise<Pick<User, Key> | null> => {
+    return prisma.user.findUnique({
       where: { username },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    }) as Promise<Pick<Users, Key> | null>;
+    }) as Promise<Pick<User, Key> | null>;
   };
 
-  public getUserByUsernameOrEmail = async <Key extends keyof Users>(
+  public getUserByUsernameOrEmail = async <Key extends keyof User>(
     usernameOrEmail: string,
     keys: Key[] = [
       'id',
@@ -67,16 +67,16 @@ class UserService {
       'createdAt',
       'updatedAt'
     ] as Key[]
-  ): Promise<Pick<Users, Key> | null> => {
-    return prisma.users.findFirst({
+  ): Promise<Pick<User, Key> | null> => {
+    return prisma.user.findFirst({
       where: {
-        OR: [{ username: firstLetterUppercase(usernameOrEmail) }, { email: lowerCase(usernameOrEmail) }]
+        OR: [{ username: usernameOrEmail }, { email: lowerCase(usernameOrEmail) }]
       },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    }) as Promise<Pick<Users, Key> | null>;
+    }) as Promise<Pick<User, Key> | null>;
   };
 
-  public createUser = async (data: UserRegistrationDTO): Promise<Users> => {
+  public createUser = async (data: UserRegistrationDTO): Promise<User> => {
     // 1. Check username existed
     const existedUser = await userService.getUserByEmail(data.email);
     if (existedUser) {
@@ -90,19 +90,20 @@ class UserService {
 
     // 3. Create new user
     const newId = v7();
-    const newUser: Users = {
+    const newUser: User = {
       ...data,
       id: newId,
       password: hashPassword,
       salt: salt,
       role: UserRole.USER,
+      status: Status.ACTIVE,
       createdAt: new Date(),
       updatedAt: new Date(),
       avatar: null,
       isEmailVerified: false
     };
 
-    return prisma.users.create({
+    return prisma.user.create({
       data: {
         ...newUser
       }

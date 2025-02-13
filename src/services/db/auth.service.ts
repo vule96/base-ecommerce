@@ -1,4 +1,4 @@
-import { Users } from '@prisma/client';
+import type { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { StatusCodes } from 'http-status-codes';
@@ -8,6 +8,7 @@ import { ErrInvalidUsernameAndPassword } from '~/modules/auth/auth.error';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
 import { userService } from '~/services/db/user.service';
 import { AppError } from '~/utils/error';
+import { tokenService } from './token.service';
 
 class AuthService {
   public login = async (usernameOrEmail: string, password: string) => {
@@ -18,8 +19,10 @@ class AuthService {
       throw AppError.from(ErrInvalidUsernameAndPassword, StatusCodes.BAD_REQUEST).withLog('Username not found');
     }
 
+    const { password: userPass, salt, ...userData } = user;
+
     // 2. Check password
-    const isMatch = await bcrypt.compare(`${password}.${user.salt}`, user.password);
+    const isMatch = await bcrypt.compare(`${password}.${salt}`, userPass);
     if (!isMatch) {
       throw AppError.from(ErrInvalidUsernameAndPassword, StatusCodes.BAD_REQUEST).withLog('Password is incorrect');
     }
@@ -32,7 +35,16 @@ class AuthService {
     const refreshTokenKey = crypto.randomBytes(64).toString('hex');
 
     const { accessToken, refreshToken } = await this.createTokens(user, accessTokenKey, refreshTokenKey);
+
+    const tokenData = {
+      token: refreshToken,
+      userId: user.id
+    };
+
+    await tokenService.create(tokenData);
+
     return {
+      ...userData,
       accessToken,
       refreshToken
     };
@@ -43,7 +55,7 @@ class AuthService {
     return user;
   };
 
-  private createTokens = async (user: Users, accessTokenKey: string, refreshTokenKey: string) => {
+  private createTokens = async (user: User, accessTokenKey: string, refreshTokenKey: string) => {
     const [accessToken, refreshToken] = await Promise.all([
       jwt.encode(
         new JwtPayload(

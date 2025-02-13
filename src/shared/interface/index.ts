@@ -3,6 +3,11 @@ export enum UserRole {
   USER = 'user'
 }
 
+export enum Status {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive'
+}
+
 export interface TokenPayload {
   sub: string;
   role: UserRole;

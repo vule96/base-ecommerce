@@ -91,3 +91,10 @@ export const ErrUnauthorized = AppError.from(new Error('Unauthorized'), StatusCo
 export const ErrForbidden = AppError.from(new Error('Forbidden'), StatusCodes.FORBIDDEN);
 export const ErrNotFound = AppError.from(new Error('Not found'), StatusCodes.NOT_FOUND);
 export const ErrMethodNotAllowed = AppError.from(new Error('Method not allowed'), StatusCodes.METHOD_NOT_ALLOWED);
+export const ErrConflict = AppError.from(new Error('Conflict'), StatusCodes.CONFLICT);
+
+export type PrismaErrorCode = 'P2002';
+
+export const PrismaErrorCodes = {
+  P2002: ErrConflict
+};

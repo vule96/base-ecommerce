@@ -4,9 +4,10 @@ import {
   ErrFirstNameAtLeast2Chars,
   ErrLastNameAtLeast2Chars,
   ErrPasswordAtLeast6Chars,
-  ErrRoleInvalid
+  ErrRoleInvalid,
+  ErrStatusInvalid
 } from '~/modules/user/user.error';
-import { UserRole } from '~/shared/interface';
+import { Status, UserRole } from '~/shared/interface';
 
 export const userSchema = z.object({
   id: z.string().uuid(),
@@ -21,6 +22,7 @@ export const userSchema = z.object({
   password: z.string().min(6, ErrPasswordAtLeast6Chars.message),
   salt: z.string().min(8),
   role: z.nativeEnum(UserRole, ErrRoleInvalid),
+  status: z.nativeEnum(Status, ErrStatusInvalid),
   createdAt: z.date(),
   updatedAt: z.date()
 });

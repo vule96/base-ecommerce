@@ -1,11 +1,14 @@
 import express, { Request, Response, Router } from 'express';
-import { successResponse } from '~/utils/success';
+import { OkResponse } from '~/utils/success';
 
 const router: Router = express.Router();
 
 const healthRoutes = (): Router => {
   router.get('/health', (_req: Request, res: Response) => {
-    successResponse('Server is healthy and OK', res);
+    new OkResponse({
+      message: 'Server is healthy and OK',
+      metadata: {}
+    }).send(res);
   });
 
   return router;

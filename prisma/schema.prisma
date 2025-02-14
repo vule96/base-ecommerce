@@ -29,7 +29,9 @@ model User {
 }
 
 model Token {
-  token     String   @id @map("token")
+  id        String   @id @default(uuid()) @map("id") @db.Uuid
+  token     String   @map("token")
+  expiresIn BigInt   @map("expires_in")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
   userId    String   @unique @map("user_id") @db.Uuid
@@ -39,7 +41,49 @@ model Token {
   @@map("token")
 }
 
+model Product {
+  id               String          @id @default(uuid()) @map("id") @db.Uuid
+  name             String          @unique @map("name") @db.VarChar(100)
+  slug             String          @unique @map("slug") @db.VarChar(100)
+  description      String          @map("description") @db.Text
+  shortDescription String          @map("short_description") @db.VarChar(100)
+  // sku              String          @map("sku") @db.VarChar(100)
+  status           product_status? @default(active) @map("status")
+  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime        @default(now()) @map("updated_at") @db.Timestamptz
+  categoryId       String?         @map("category_id") @db.Uuid
+  category         Category?       @relation(fields: [categoryId], references: [id])
+
+  @@map("product")
+}
+
+model Category {
+  id        String           @id @default(uuid()) @map("id") @db.Uuid
+  name      String           @unique @map("name") @db.VarChar(100)
+  slug      String           @unique @map("slug") @db.VarChar(100)
+  parentId  String?          @map("parent_id") @db.Uuid
+  status    category_status? @default(active) @map("status")
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime         @default(now()) @map("updated_at") @db.Timestamptz
+  parent    Category?        @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children  Category[]       @relation("CategoryHierarchy")
+  Product   Product[]
+
+  @@index([parentId], map: "parent_id")
+  @@map("category")
+}
+
 enum user_status {
+  active
+  inactive
+}
+
+enum product_status {
+  active
+  inactive
+}
+
+enum category_status {
   active
   inactive
 }

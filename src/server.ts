@@ -13,6 +13,7 @@ import { config } from '~/config';
 import { errorHandler } from '~/middlewares/error.middleware';
 import { morganMiddleware } from '~/middlewares/morgan.middleware';
 import { appRoutes } from '~/routes';
+import { ErrNotFound } from '~/utils/error';
 import logger from '~/utils/logger';
 
 let server: Server;
@@ -84,9 +85,13 @@ const routesMiddleware = (app: Application): void => {
   appRoutes(app);
 };
 
-function globalErrorHandler(app: Application): void {
+const globalErrorHandler = (app: Application): void => {
+  app.all('*', (req, _res, next) => {
+    return next(ErrNotFound.withLog(`The url ${req.originalUrl} not found`));
+  });
+
   app.use(errorHandler);
-}
+};
 
 const startServer = async (app: Application): Promise<void> => {
   try {

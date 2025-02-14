@@ -76,7 +76,7 @@ class UserService {
     }) as Promise<Pick<User, Key> | null>;
   };
 
-  public createUser = async (data: UserRegistrationDTO): Promise<User> => {
+  public create = async (data: UserRegistrationDTO): Promise<User> => {
     // 1. Check username existed
     const existedUser = await userService.getUserByEmail(data.email);
     if (existedUser) {

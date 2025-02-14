@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '~/services/db/user.service';
 import { ErrNotFound } from '~/utils/error';

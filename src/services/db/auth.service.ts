@@ -6,9 +6,9 @@ import jwt, { JwtPayload } from '~/components/jwt';
 import { config } from '~/config';
 import { ErrInvalidUsernameAndPassword } from '~/modules/auth/auth.error';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
+import { tokenService } from '~/services/db/token.service';
 import { userService } from '~/services/db/user.service';
 import { AppError } from '~/utils/error';
-import { tokenService } from './token.service';
 
 class AuthService {
   public login = async (usernameOrEmail: string, password: string) => {
@@ -34,14 +34,19 @@ class AuthService {
     const accessTokenKey = crypto.randomBytes(64).toString('hex');
     const refreshTokenKey = crypto.randomBytes(64).toString('hex');
 
-    const { accessToken, refreshToken } = await this.createTokens(user, accessTokenKey, refreshTokenKey);
+    const { accessToken, refreshToken, refreshTokenExpiresIn } = await this.createTokens(
+      user,
+      accessTokenKey,
+      refreshTokenKey
+    );
 
     const tokenData = {
       token: refreshToken,
-      userId: user.id
+      userId: user.id,
+      expiresIn: refreshTokenExpiresIn as unknown as bigint
     };
 
-    await tokenService.create(tokenData);
+    await tokenService.upsert(tokenData);
 
     return {
       ...userData,
@@ -51,36 +56,40 @@ class AuthService {
   };
 
   public register = async (data: UserRegistrationDTO) => {
-    const user = await userService.createUser(data);
+    const user = await userService.create(data);
     return user;
   };
 
   private createTokens = async (user: User, accessTokenKey: string, refreshTokenKey: string) => {
+    const accessTokenPayload = new JwtPayload(
+      config.TOKEN_ISSUER as string,
+      config.TOKEN_AUDIENCE as string,
+      user.id.toString(),
+      accessTokenKey,
+      config.ACCESS_TOKEN_VALIDITY_SEC
+    );
+    const refreshTokenPayload = new JwtPayload(
+      config.TOKEN_ISSUER as string,
+      config.TOKEN_AUDIENCE as string,
+      user.id.toString(),
+      refreshTokenKey,
+      config.REFRESH_TOKEN_VALIDITY_SEC
+    );
+
     const [accessToken, refreshToken] = await Promise.all([
-      jwt.encode(
-        new JwtPayload(
-          config.TOKEN_ISSUER as string,
-          config.TOKEN_AUDIENCE as string,
-          user.id.toString(),
-          accessTokenKey,
-          config.ACCESS_TOKEN_VALIDITY_SEC
-        )
-      ),
-      jwt.encode(
-        new JwtPayload(
-          config.TOKEN_ISSUER as string,
-          config.TOKEN_AUDIENCE as string,
-          user.id.toString(),
-          refreshTokenKey,
-          config.REFRESH_TOKEN_VALIDITY_SEC
-        )
-      )
+      jwt.encode(accessTokenPayload),
+      jwt.encode(refreshTokenPayload)
     ]);
 
     if (!accessToken || !refreshToken)
       throw AppError.from(new Error('An error occurred while generating tokens'), StatusCodes.INTERNAL_SERVER_ERROR);
 
-    return { accessToken, refreshToken };
+    return {
+      accessToken,
+      refreshToken,
+      accessTokenExpiresIn: accessTokenPayload.exp,
+      refreshTokenExpiresIn: refreshTokenPayload.exp
+    };
   };
 }
 

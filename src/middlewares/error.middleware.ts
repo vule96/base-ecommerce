@@ -1,7 +1,9 @@
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { isProduction } from '~/utils';
-import { AppError, ErrInternalServer, ErrInvalidRequest } from '~/utils/error';
+import { AppError, ErrInternalServer, ErrInvalidRequest, PrismaErrorCode, PrismaErrorCodes } from '~/utils/error';
+import { firstLetterUppercase } from '~/utils/helpers';
 import logger from '~/utils/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -13,6 +15,25 @@ export const errorHandler = (error: Error, request: Request, response: Response,
     const appErr = error as AppError;
     response.status(appErr.getStatusCode()).json(appErr.toJSON(isProduction));
 
+    return;
+  }
+
+  if (error instanceof PrismaClientKnownRequestError) {
+    const code: PrismaErrorCode = error.code as PrismaErrorCode;
+    const pErr = PrismaErrorCodes[code];
+    const appErr = pErr.wrap(error);
+
+    logger.error(
+      `Error: ${appErr.getStatusCode()} - ${error.message} - ${request.originalUrl} - ${request.method} - ${request.ip}`
+    );
+
+    if (code === 'P2002' && error.meta && error.meta.target && Array.isArray(error.meta.target)) {
+      error.meta.target.map((key: string) => {
+        appErr.withDetail(key, `${firstLetterUppercase(key)} is unique`);
+      });
+    }
+
+    response.status(appErr.getStatusCode()).json(appErr.toJSON(isProduction));
     return;
   }
 

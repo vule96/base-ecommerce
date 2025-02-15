@@ -33,6 +33,10 @@ export const errorHandler = (error: Error, request: Request, response: Response,
       });
     }
 
+    if (code === 'P2003' && error.meta && error.meta.field_name && typeof error.meta.field_name === 'string') {
+      appErr.withDetail(error.meta.field_name, `Foreign key constraint violated`);
+    }
+
     response.status(appErr.getStatusCode()).json(appErr.toJSON(isProduction));
     return;
   }

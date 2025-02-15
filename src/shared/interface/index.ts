@@ -12,3 +12,10 @@ export interface TokenPayload {
   sub: string;
   role: UserRole;
 }
+
+export interface TokenResponse {
+  accessToken: string;
+  accessTokenExpiresIn: number;
+  refreshToken: string;
+  refreshTokenExpiresIn: number;
+}

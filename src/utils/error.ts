@@ -93,8 +93,9 @@ export const ErrNotFound = AppError.from(new Error('Not found'), StatusCodes.NOT
 export const ErrMethodNotAllowed = AppError.from(new Error('Method not allowed'), StatusCodes.METHOD_NOT_ALLOWED);
 export const ErrConflict = AppError.from(new Error('Conflict'), StatusCodes.CONFLICT);
 
-export type PrismaErrorCode = 'P2002';
+export type PrismaErrorCode = 'P2002' | 'P2003';
 
 export const PrismaErrorCodes = {
-  P2002: ErrConflict
+  P2002: ErrConflict,
+  P2003: ErrConflict
 };

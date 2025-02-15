@@ -23,3 +23,25 @@ export const categoryCreateDTOSchema = categorySchema
   .required({ name: true });
 
 export type CategoryCreateDTO = z.infer<typeof categoryCreateDTOSchema>;
+
+export const categoryCondDTOSchema = categorySchema
+  .pick({
+    name: true,
+    slug: true,
+    status: true
+  })
+  .partial();
+
+export type CategoryCondDTO = z.infer<typeof categoryCondDTOSchema>;
+
+export const categoryUpdateDTOSchema = categorySchema.pick({ name: true, parentId: true, status: true }).partial();
+
+export type CategoryUpdateDTO = z.infer<typeof categoryUpdateDTOSchema>;
+
+export const categoryIdDTOSchema = categorySchema
+  .pick({
+    id: true
+  })
+  .required();
+
+export type CategoryIdDTO = z.infer<typeof categoryIdDTOSchema>;

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { authService } from '~/services/db/auth.service';
+import { setCookies } from '~/utils/cookie';
 import logger from '~/utils/logger';
 import { OkResponse } from '~/utils/success';
 
@@ -8,6 +9,14 @@ class AuthController {
     logger.info(`AuthController.login - request received`);
     const { username, password } = req.body;
     const data = await authService.login(username, password);
+
+    setCookies(res, {
+      accessToken: data.accessToken,
+      accessTokenExpiresIn: data.accessTokenExpiresIn,
+      refreshToken: data.refreshToken,
+      refreshTokenExpiresIn: data.refreshTokenExpiresIn
+    });
+
     new OkResponse({
       message: 'Login successfully',
       metadata: data

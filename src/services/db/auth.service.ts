@@ -34,7 +34,7 @@ class AuthService {
     const accessTokenKey = crypto.randomBytes(64).toString('hex');
     const refreshTokenKey = crypto.randomBytes(64).toString('hex');
 
-    const { accessToken, refreshToken, refreshTokenExpiresIn } = await this.createTokens(
+    const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = await this.createTokens(
       user,
       accessTokenKey,
       refreshTokenKey
@@ -51,7 +51,9 @@ class AuthService {
     return {
       ...userData,
       accessToken,
-      refreshToken
+      accessTokenExpiresIn,
+      refreshToken,
+      refreshTokenExpiresIn
     };
   };
 

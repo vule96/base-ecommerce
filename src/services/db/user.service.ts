@@ -109,6 +109,11 @@ class UserService {
       }
     });
   };
+
+  public findById = async (id: User['id']) => {
+    const user = await prisma.user.findUnique({ where: { id }, omit: { password: true, salt: true } });
+    return user;
+  };
 }
 
 export const userService: UserService = new UserService();

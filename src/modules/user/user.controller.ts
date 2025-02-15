@@ -1,15 +1,21 @@
 import type { Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
 import { userService } from '~/services/db/user.service';
 import { ErrNotFound } from '~/utils/error';
+import logger from '~/utils/logger';
+import { OkResponse } from '~/utils/success';
 
 class UserController {
-  public getUserByEmail = async (req: Request, res: Response) => {
-    const user = await userService.getUserByEmail(req.params.email);
+  public findById = async (req: Request, res: Response) => {
+    logger.info(`UserController.findById - request received`);
+    const user = await userService.findById(req.params.id);
     if (!user) {
-      throw ErrNotFound;
+      throw ErrNotFound.withLog(`The user with ${req.params.id} not found`);
     }
-    res.status(StatusCodes.OK).json({ data: user });
+
+    new OkResponse({
+      message: 'Find user by id successfully',
+      metadata: user || {}
+    }).send(res);
   };
 }
 

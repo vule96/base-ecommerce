@@ -48,3 +48,11 @@ export const userLoginDTOSchema = userSchema
 
 export type UserRegistrationDTO = z.infer<typeof userRegistrationDTOSchema>;
 export type UserLoginDTO = z.infer<typeof userLoginDTOSchema>;
+
+export const userIdDTOSchema = userSchema
+  .pick({
+    id: true
+  })
+  .required();
+
+export type UserIdDTO = z.infer<typeof userIdDTOSchema>;

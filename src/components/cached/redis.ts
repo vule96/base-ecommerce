@@ -1,5 +1,5 @@
 import { type RedisClientType, createClient } from 'redis';
-import { config } from '~/config';
+import { env } from '~/config';
 import logger from '~/utils/logger';
 
 export class RedisClient {
@@ -10,7 +10,7 @@ export class RedisClient {
    * Constructor (private để thực hiện Singleton pattern).
    */
   private constructor() {
-    this.redisClient = createClient({ url: `${config.REDIS_URL}` });
+    this.redisClient = createClient({ url: `${env.REDIS_URL}` });
   }
 
   /**
@@ -23,10 +23,13 @@ export class RedisClient {
       try {
         await redisClient._connect();
         RedisClient.instance = redisClient;
+        // logger.success('Redis client initialized');
       } catch (error) {
-        logger.error(`Failed to initialize redis: ${error}`);
+        logger.error(`Failed to initialize Redis: ${error}`);
         throw error;
       }
+    } else {
+      logger.info('Redis client already initialized');
     }
   }
 
@@ -54,7 +57,7 @@ export class RedisClient {
 
     try {
       await this.redisClient.connect();
-      logger.success('Connected to redis server');
+      logger.success('Connected to Redis server');
     } catch (error) {
       logger.error(`Failed to connect to Redis server: ${error}`);
       this.redisClient = null;
@@ -70,14 +73,14 @@ export class RedisClient {
     if (this.redisClient) {
       try {
         await this.redisClient.disconnect();
-        logger.info('Disconnected from redis server');
+        logger.info('Disconnected from Redis server');
       } catch (error) {
         logger.error(`Error during Redis disconnect: ${error}`);
       } finally {
         this.redisClient = null;
       }
     } else {
-      logger.warning('Redis client was not initialized, skipping disconnect');
+      logger.warning('Redis client was not initialized or already disconnected, skipping disconnect');
     }
   }
 
@@ -89,11 +92,14 @@ export class RedisClient {
     if (RedisClient.instance) {
       try {
         await RedisClient.instance.disconnect();
+        logger.success('Redis client closed successfully');
       } catch (error) {
         logger.error(`Error during redis disconnect: ${(error as Error).message}`);
       } finally {
         RedisClient.instance = null;
       }
+    } else {
+      logger.warning('Redis client instance is not initialized, nothing to close');
     }
   }
 }

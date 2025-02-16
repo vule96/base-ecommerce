@@ -2,9 +2,9 @@ import type { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
-import { ErrUsernameExisted } from '~/modules/auth/auth.error';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
 import { Status, UserRole } from '~/shared/interface';
+import { ErrConflict } from '~/utils/error';
 import { lowerCase } from '~/utils/helpers';
 
 class UserService {
@@ -80,7 +80,7 @@ class UserService {
     // 1. Check username existed
     const existedUser = await userService.getUserByEmail(data.email);
     if (existedUser) {
-      throw ErrUsernameExisted;
+      throw ErrConflict.withLog('Username is already existed');
     }
 
     // 2. Gen salt and hash password

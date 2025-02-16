@@ -1,4 +1,4 @@
-import { config } from '~/config';
+import { env } from '~/config';
 
-export const isDevelopment = config.NODE_ENV === 'development';
-export const isProduction = config.NODE_ENV === 'production';
+export const isDevelopment = env.NODE_ENV === 'development';
+export const isProduction = env.NODE_ENV === 'production';

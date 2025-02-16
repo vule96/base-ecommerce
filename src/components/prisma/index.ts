@@ -6,34 +6,41 @@ const prismaClientSingleton = () => {
   return new PrismaClient();
 };
 
-declare const globalThis: {
+declare const global: {
   prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined;
-} & typeof global;
+};
 
-export const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+export const prisma = global.prismaGlobal ?? prismaClientSingleton();
 
 if (!isProduction) {
-  globalThis.prismaGlobal = prisma;
+  global.prismaGlobal = prisma;
 }
 
 export async function connectPrisma() {
   try {
-    if (!globalThis.prismaGlobal) {
-      globalThis.prismaGlobal = prismaClientSingleton();
+    if (!global.prismaGlobal) {
+      global.prismaGlobal = prismaClientSingleton();
     }
 
-    await (globalThis.prismaGlobal as PrismaClient).$connect();
-    logger.success('Connected to database');
+    await global.prismaGlobal.$connect();
+    logger.success('Successfully connected to the database');
   } catch (error) {
-    logger.error(`Failed to connect to database: ${(error as Error).message}`);
+    logger.error(`Failed to connect to the database: ${(error as Error).message}`);
     throw error;
   }
 }
 
 export async function disconnectPrisma() {
-  if (globalThis.prismaGlobal) {
-    await globalThis.prismaGlobal.$disconnect();
-    logger.info(`Disconnected from database`);
-    globalThis.prismaGlobal = undefined;
+  try {
+    if (global.prismaGlobal) {
+      await global.prismaGlobal.$disconnect();
+      logger.info('Successfully disconnected from the database');
+    } else {
+      logger.warning('No Prisma client to disconnect');
+    }
+  } catch (error) {
+    logger.error(`Error during database disconnection: ${(error as Error).message}`);
+  } finally {
+    global.prismaGlobal = undefined;
   }
 }

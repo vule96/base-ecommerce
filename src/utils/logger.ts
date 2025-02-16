@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { resolve } from 'path';
 import { createLogger, format, Logger as LoggerType, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { config } from '~/config';
+import { env } from '~/config';
 
 const errorColor = chalk.red.bold;
 const warningColor = chalk.yellow.bold;
@@ -10,9 +10,13 @@ const successColor = chalk.green.bold;
 const infoColor = chalk.white;
 const httpColor = chalk.magenta;
 
-const logFolderPath = config.LOG_FOLDER_PATH;
-const maxLogSize = parseInt(config.LOG_FILE_MAX_SIZE);
-const appName = config.APP_NAME;
+const logFolderPath = env.LOG_FOLDER_PATH;
+const maxLogSize = parseInt(env.LOG_FILE_MAX_SIZE, 10); // 10MB
+const appName = env.APP_NAME;
+
+if (!logFolderPath || !appName) {
+  throw new Error('Required environment variables are missing.');
+}
 
 const customLevels = {
   error: 0,
@@ -89,6 +93,11 @@ const loggerConfig = createLogger({
     new transports.File({
       filename: resolve(logFolderPath, 'exceptions.log'),
       format: fileFormat
+    }),
+    new transports.Console({
+      // Log exceptions to console for debugging
+      format: consoleFormat,
+      handleExceptions: true
     })
   ]
 });

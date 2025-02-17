@@ -1,7 +1,8 @@
-import globals from 'globals';
 import pluginJs from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
+import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default [
   { files: ['**/*.{js,mjs,cjs,ts}'] },
@@ -10,10 +11,11 @@ export default [
   ...tseslint.configs.recommended,
   {
     plugins: {
-      prettier: eslintPluginPrettier
+      prettier: eslintPluginPrettier,
+      'simple-import-sort': eslintPluginSimpleImportSort
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'error',
       'prettier/prettier': [
         'warn',
@@ -30,7 +32,11 @@ export default [
           insertFinalNewline: true
         }
       ],
-      'no-useless-catch': 'off'
+      'no-useless-catch': 'off',
+
+      // Thêm các rule của eslint-plugin-simple-import-sort
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error'
     },
     ignores: ['**/node_modules/', '**/build/']
   }

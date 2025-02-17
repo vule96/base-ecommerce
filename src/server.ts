@@ -1,15 +1,18 @@
+import 'express-async-errors';
+import 'reflect-metadata';
+
 import compression from 'compression';
 import cors from 'cors';
 import { type Application, json, urlencoded } from 'express';
-import 'express-async-errors';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import http, { Server } from 'http';
 import RedisStore from 'rate-limit-redis';
+
 import { RedisClient } from '~/components/cached/redis';
 import { connectPrisma, disconnectPrisma } from '~/components/prisma';
-import { config } from '~/config';
+import { env } from '~/config';
 import { errorHandler } from '~/middlewares/error.middleware';
 import { morganMiddleware } from '~/middlewares/morgan.middleware';
 import { appRoutes } from '~/routes';
@@ -17,7 +20,7 @@ import { ErrNotFound } from '~/utils/error';
 import logger from '~/utils/logger';
 
 let server: Server;
-const SERVER_PORT = config.PORT;
+const SERVER_PORT = env.PORT;
 
 const start = (app: Application): void => {
   connectDependencies()
@@ -56,13 +59,11 @@ async function standardMiddleware(app: Application): Promise<void> {
       logger.warning(`Sensitive endpoint rate limit exceeded for IP: ${req.ip}`);
       res.status(429).json({ success: false, message: 'Too many requests' });
     },
-    ...(redisInstance && {
-      store: new RedisStore({
-        sendCommand: function (...args: string[]) {
-          return redisInstance.sendCommand(args);
-        }
-      })
-    })
+    store: redisInstance
+      ? new RedisStore({
+          sendCommand: (...args: string[]) => redisInstance.sendCommand(args)
+        })
+      : undefined
   });
 
   app.use(ratelimitOptions);
@@ -102,59 +103,13 @@ const startServer = async (app: Application): Promise<void> => {
     });
   } catch (error) {
     logger.error(`An error occurred while starting server: ${error}`);
+    process.exit(1); // Ensure application exits if server fails to start
   }
 };
 
-const exitHandler = async () => {
+const closeResources = async (): Promise<void> => {
   try {
-    if (server) {
-      await new Promise<void>((resolve, reject) => {
-        server.close((err) => {
-          if (err) {
-            logger.error(`Error during server close: ${(err as Error).message}`);
-            reject(err);
-          } else {
-            logger.info('Disconnected from server');
-            resolve();
-          }
-        });
-      });
-    }
-
-    try {
-      await RedisClient.close();
-    } catch (error) {
-      logger.error(`Error during redis disconnect: ${(error as Error).message}`);
-    }
-
-    try {
-      await disconnectPrisma();
-    } catch (error) {
-      logger.error(`Error during database disconnect: ${(error as Error).message}`);
-    }
-  } catch (error) {
-    logger.error(`Error during exitHandler: ${(error as Error).message}`);
-  } finally {
-    process.exit(1);
-  }
-};
-
-const unexpectedErrorHandler = (error: unknown) => {
-  const errorInfo = {
-    message: error instanceof Error ? error.message : String(error),
-    stack: error instanceof Error ? error.stack : undefined
-  };
-
-  logger.error(`Unexpected error: ${errorInfo}`);
-  exitHandler();
-};
-
-process.on('uncaughtException', unexpectedErrorHandler);
-process.on('unhandledRejection', unexpectedErrorHandler);
-
-const gracefulShutdown = async (signal: string) => {
-  logger.info(`Received ${signal} signal. Disconnecting...`);
-  try {
+    // Close server
     if (server) {
       await new Promise<void>((resolve, reject) => {
         server.close((err) => {
@@ -169,25 +124,45 @@ const gracefulShutdown = async (signal: string) => {
       });
     }
 
+    // Close Redis connection
     try {
       await RedisClient.close();
     } catch (error) {
-      logger.error(`Error during redis disconnect: ${(error as Error).message}`);
+      logger.error(`Error during Redis disconnect: ${(error as Error).message}`);
     }
 
+    // Close Prisma connection
     try {
       await disconnectPrisma();
     } catch (error) {
-      logger.error(`Error during database disconnect: ${(error as Error).message}`);
+      logger.error(`Error during Prisma disconnect: ${(error as Error).message}`);
     }
-
-    process.exit(0);
   } catch (error) {
-    logger.error(`Error during ${signal} disconnect: ${(error as Error).message}`);
-    process.exit(1);
+    logger.error(`Error during resource closure: ${(error as Error).message}`);
   }
 };
 
+const gracefulShutdown = async (signal: string) => {
+  logger.info(`Received ${signal} signal. Disconnecting...`);
+  await closeResources();
+  process.exit(0);
+};
+
+const unexpectedErrorHandler = (error: unknown) => {
+  const errorInfo = {
+    message: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined
+  };
+
+  logger.error(`Unexpected error: ${errorInfo}`);
+  closeResources().finally(() => process.exit(1));
+};
+
+// Global error handling for uncaught exceptions and unhandled promise rejections
+process.on('uncaughtException', unexpectedErrorHandler);
+process.on('unhandledRejection', unexpectedErrorHandler);
+
+// Graceful shutdown for SIGINT and SIGTERM
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 

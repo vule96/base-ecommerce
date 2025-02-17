@@ -2,8 +2,9 @@ import type { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { StatusCodes } from 'http-status-codes';
+
 import jwt, { JwtPayload } from '~/components/jwt';
-import { config } from '~/config';
+import { env } from '~/config';
 import { ErrInvalidUsernameAndPassword } from '~/modules/auth/auth.error';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
 import { tokenService } from '~/services/db/token.service';
@@ -11,7 +12,7 @@ import { userService } from '~/services/db/user.service';
 import { AppError } from '~/utils/error';
 
 class AuthService {
-  public login = async (usernameOrEmail: string, password: string) => {
+  public login = async (usernameOrEmail: string, password: string, ipAddress: string, userAgent: string) => {
     // 1. Find user with username or email
     const user = await userService.getUserByUsernameOrEmail(usernameOrEmail);
 
@@ -43,10 +44,12 @@ class AuthService {
     const tokenData = {
       token: refreshToken,
       userId: user.id,
-      expiresIn: refreshTokenExpiresIn as unknown as bigint
+      ipAddress,
+      userAgent,
+      expiresAt: new Date(refreshTokenExpiresIn * 1000)
     };
 
-    await tokenService.upsert(tokenData);
+    await tokenService.create(tokenData);
 
     return {
       ...userData,
@@ -64,18 +67,18 @@ class AuthService {
 
   private createTokens = async (user: User, accessTokenKey: string, refreshTokenKey: string) => {
     const accessTokenPayload = new JwtPayload(
-      config.TOKEN_ISSUER as string,
-      config.TOKEN_AUDIENCE as string,
+      env.TOKEN_ISSUER as string,
+      env.TOKEN_AUDIENCE as string,
       user.id.toString(),
       accessTokenKey,
-      config.ACCESS_TOKEN_VALIDITY_SEC
+      env.ACCESS_TOKEN_VALIDITY_SEC
     );
     const refreshTokenPayload = new JwtPayload(
-      config.TOKEN_ISSUER as string,
-      config.TOKEN_AUDIENCE as string,
+      env.TOKEN_ISSUER as string,
+      env.TOKEN_AUDIENCE as string,
       user.id.toString(),
       refreshTokenKey,
-      config.REFRESH_TOKEN_VALIDITY_SEC
+      env.REFRESH_TOKEN_VALIDITY_SEC
     );
 
     const [accessToken, refreshToken] = await Promise.all([

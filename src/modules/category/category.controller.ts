@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+
 import { categoryService } from '~/services/db/category.service';
 import { ErrNotFound } from '~/utils/error';
 import logger from '~/utils/logger';

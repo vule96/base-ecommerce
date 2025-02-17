@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
-import { config } from '~/config';
+
+import { env } from '~/config';
 import logger from '~/utils/logger';
 
 export class Database {
@@ -8,15 +9,15 @@ export class Database {
 
   private constructor() {
     this.pool = new Pool({
-      host: config.POSTGRES_HOST,
-      user: config.POSTGRES_USER,
-      password: config.POSTGRES_PASSWORD,
-      port: config.POSTGRES_PORT,
-      database: config.POSTGRES_DB,
+      host: env.POSTGRES_HOST,
+      user: env.POSTGRES_USER,
+      password: env.POSTGRES_PASSWORD,
+      port: env.POSTGRES_PORT,
+      database: env.POSTGRES_DB,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000
-      // ...(config.NODE_ENV !== 'development' && {
+      // ...(env.NODE_ENV !== 'development' && {
       //   ssl: {
       //     rejectUnauthorized: false
       //   }

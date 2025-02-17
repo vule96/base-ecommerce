@@ -1,60 +1,60 @@
 import dotenv from 'dotenv';
+import { z } from 'zod';
 
-dotenv.config({});
+dotenv.config();
 
-class Config {
-  public PORT: number;
-  public NODE_ENV: string | undefined;
-  public APP_NAME: string | undefined;
-  public LOG_FOLDER_PATH: string;
-  public LOG_FILE_MAX_SIZE: string;
-  public TZ: string | undefined;
-  public ACCESS_TOKEN_VALIDITY_SEC: number;
-  public REFRESH_TOKEN_VALIDITY_SEC: number;
-  public TOKEN_ISSUER: string | undefined;
-  public TOKEN_AUDIENCE: string | undefined;
-  public POSTGRES_HOST: string | undefined;
-  public POSTGRES_PORT: number;
-  public POSTGRES_USER: string | undefined;
-  public POSTGRES_PASSWORD: string | undefined;
-  public POSTGRES_DB: string | undefined;
-  public DATABASE_URL: string | undefined;
-  public REDIS_HOST: string | undefined;
-  public REDIS_PORT: number;
-  public REDIS_PASSWORD: string | undefined;
-  public REDIS_URL: string;
-  public ELASTIC_SEARCH_URL: string | undefined;
+export const envSchema = z.object({
+  NODE_ENV: z.string().default('development'),
+  PORT: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .default('4000'), // parseInt trong schema
+  APP_NAME: z.string(),
+  LOG_FOLDER_PATH: z.string(),
+  LOG_FILE_MAX_SIZE: z.string(),
+  TZ: z.string(),
+  ACCESS_TOKEN_VALIDITY_SEC: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .default('172800'),
+  REFRESH_TOKEN_VALIDITY_SEC: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .default('604800'),
+  TOKEN_ISSUER: z.string(),
+  TOKEN_AUDIENCE: z.string(),
+  POSTGRES_HOST: z.string(),
+  POSTGRES_PORT: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .default('5432'),
+  POSTGRES_USER: z.string(),
+  POSTGRES_PASSWORD: z.string(),
+  POSTGRES_DB: z.string(),
+  DATABASE_URL: z.string(),
+  REDIS_HOST: z.string().default('localhost'),
+  REDIS_PORT: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .default('6379'),
+  REDIS_PASSWORD: z.string(),
+  REDIS_URL: z.string(),
+  ELASTIC_SEARCH_URL: z.string()
+});
 
-  constructor() {
-    this.PORT = parseInt(process.env.PORT as string) || 4000;
-    this.NODE_ENV = process.env.NODE_ENV || 'development';
-    this.APP_NAME = process.env.APP_NAME || 'base-ecommerce';
-    this.LOG_FOLDER_PATH = process.env.LOG_FOLDER_PATH || 'logs';
-    this.LOG_FILE_MAX_SIZE = process.env.LOG_FILE_MAX_SIZE || '10485760';
-    this.TZ = process.env.TZ || 'Asia/Ho_Chi_Minh';
-    this.ACCESS_TOKEN_VALIDITY_SEC = parseInt(process.env.ACCESS_TOKEN_VALIDITY_SEC as string) || 172800;
-    this.REFRESH_TOKEN_VALIDITY_SEC = parseInt(process.env.REFRESH_TOKEN_VALIDITY_SEC as string) || 604800;
-    this.TOKEN_ISSUER = process.env.TOKEN_ISSUER || '';
-    this.TOKEN_AUDIENCE = process.env.TOKEN_AUDIENCE || '';
-    this.POSTGRES_HOST = process.env.POSTGRES_HOST || '';
-    this.POSTGRES_PORT = parseInt(process.env.POSTGRES_PORT as string) || 5432;
-    this.POSTGRES_USER = process.env.POSTGRES_USER || '';
-    this.POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || '';
-    this.POSTGRES_DB = process.env.POSTGRES_DB || '';
-    this.DATABASE_URL = process.env.DATABASE_URL || '';
-    this.REDIS_HOST = process.env.REDIS_HOST || 'localhost';
-    this.REDIS_PORT = parseInt(process.env.REDIS_PORT as string) || 6379;
-    this.REDIS_PASSWORD = process.env.REDIS_PASSWORD || '';
+export const serverEnv = envSchema.safeParse(process.env);
 
-    let redisUrl = 'redis://';
-    if (this.REDIS_PASSWORD) {
-      redisUrl += `:${this.REDIS_PASSWORD}@`;
-    }
-    redisUrl += `${this.REDIS_HOST}:${this.REDIS_PORT}/0`;
+export const formatErrors = (
+  /** @type {import('zod').ZodFormattedError<Map<string,string>,string>} */
+  errors: Record<string, any>
+) =>
+  Object.entries(errors)
+    .map(([name, value]) => (value._errors?.join(', ') ? `${name}: ${value._errors.join(', ')}` : ''))
+    .filter(Boolean);
 
-    this.REDIS_URL = process.env.REDIS_URL || redisUrl;
-    this.ELASTIC_SEARCH_URL = process.env.ELASTIC_SEARCH_URL || '';
-  }
+if (!serverEnv.success) {
+  console.error('❌ Invalid environment variables:\n', ...formatErrors(serverEnv.error.format()));
+  throw new Error('Invalid environment variables');
 }
 
-export const config: Config = new Config();
+export const env = serverEnv.data;

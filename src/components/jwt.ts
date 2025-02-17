@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { readFile } from 'fs';
 import { sign, verify } from 'jsonwebtoken';
 import path from 'path';
@@ -26,20 +25,31 @@ export class JwtPayload {
     this.iss = issuer;
     this.aud = audience;
     this.sub = subject;
-    this.iat = Math.floor(Date.now() / 1000);
-    this.exp = this.iat + validity;
+    this.iat = Math.floor(Date.now() / 1000); // thời gian tạo token
+    this.exp = this.iat + validity; // thời gian hết hạn token
     this.prm = param;
   }
 }
 
+// Hàm đọc khóa công khai
 async function readPublicKey(): Promise<string> {
-  return promisify(readFile)(path.join(__dirname, '../../keys/public.pem'), 'utf8');
+  try {
+    return await promisify(readFile)(path.join(__dirname, '../../keys/public.pem'), 'utf8');
+  } catch (e) {
+    throw new Error('Failed to read public key');
+  }
 }
 
+// Hàm đọc khóa riêng tư
 async function readPrivateKey(): Promise<string> {
-  return promisify(readFile)(path.join(__dirname, '../../keys/private.pem'), 'utf8');
+  try {
+    return await promisify(readFile)(path.join(__dirname, '../../keys/private.pem'), 'utf8');
+  } catch (e) {
+    throw new Error('Failed to read private key');
+  }
 }
 
+// Hàm mã hóa (sign) JWT với payload
 async function encode(payload: JwtPayload): Promise<string> {
   const privateKey = await readPrivateKey();
   if (!privateKey) throw new Error('Token generation failure');
@@ -48,7 +58,7 @@ async function encode(payload: JwtPayload): Promise<string> {
 }
 
 /**
- * This method checks the token and returns the decoded data when token is valid in all respect
+ * Phương thức này kiểm tra token và trả về dữ liệu giải mã khi token hợp lệ
  */
 async function validate(token: string): Promise<JwtPayload> {
   const publicKey = await readPublicKey();
@@ -63,7 +73,7 @@ async function validate(token: string): Promise<JwtPayload> {
 }
 
 /**
- * Returns the decoded payload if the signature is valid even if it is expired
+ * Trả về payload đã giải mã nếu chữ ký hợp lệ, ngay cả khi token đã hết hạn
  */
 async function decode(token: string): Promise<JwtPayload> {
   const publicKey = await readPublicKey();

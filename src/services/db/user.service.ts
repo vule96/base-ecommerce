@@ -5,7 +5,7 @@ import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
 import { Status, UserRole } from '~/shared/interface';
-import { ErrConflict } from '~/utils/error';
+import { ErrConflict, ErrNotFound } from '~/utils/error';
 import { lowerCase } from '~/utils/helpers';
 
 class UserService {
@@ -78,15 +78,14 @@ class UserService {
   };
 
   public create = async (data: UserRegistrationDTO): Promise<User> => {
-    // 1. Check username existed
-    const existedUser = await userService.getUserByEmail(data.email);
+    // 1. Check if email exists
+    const existedUser = await this.getUserByEmail(data.email);
     if (existedUser) {
-      throw ErrConflict.withLog('Username is already existed');
+      throw ErrConflict.withLog('Email is already registered');
     }
 
-    // 2. Gen salt and hash password
-    // const salt = generateRandomString(20);
-    const salt = bcrypt.genSaltSync(8);
+    // 2. Generate salt and hash password
+    const salt = await bcrypt.genSalt(8);
     const hashPassword = await bcrypt.hash(`${data.password}.${salt}`, 10);
 
     // 3. Create new user
@@ -105,14 +104,33 @@ class UserService {
     };
 
     return prisma.user.create({
-      data: {
-        ...newUser
-      }
+      data: newUser
     });
   };
 
-  public findById = async (id: User['id']) => {
-    const user = await prisma.user.findUnique({ where: { id }, omit: { password: true, salt: true } });
+  public findById = async <Key extends keyof User>(
+    id: User['id'],
+    keys: Key[] = [
+      'id',
+      'email',
+      'username',
+      'firstName',
+      'lastName',
+      'role',
+      'isEmailVerified',
+      'createdAt',
+      'updatedAt'
+    ] as Key[]
+  ) => {
+    const user = prisma.user.findUnique({
+      where: { id },
+      select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
+    }) as Promise<Pick<User, Key> | null>;
+
+    if (!user) {
+      throw ErrNotFound.withLog(`The user with ${id} not found`);
+    }
+
     return user;
   };
 }

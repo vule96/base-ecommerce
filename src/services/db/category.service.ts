@@ -5,6 +5,7 @@ import { prisma } from '~/components/prisma';
 import type { CategoryCondDTO, CategoryCreateDTO, CategoryUpdateDTO } from '~/modules/category/category.schema';
 import { Status } from '~/shared/interface';
 import type { ToNullProps } from '~/shared/interface/utility';
+import { ErrNotFound } from '~/utils/error';
 import { toSlug } from '~/utils/helpers';
 
 class CategoryService {
@@ -26,17 +27,40 @@ class CategoryService {
     });
   };
 
-  public findById = async (id: Category['id']) => {
-    const category = await prisma.category.findUnique({ where: { id } });
+  public findById = async <Key extends keyof Category>(
+    id: Category['id'],
+    keys: Key[] = ['id', 'name', 'slug', 'parentId', 'status', 'createdAt', 'updatedAt'] as Key[]
+  ) => {
+    const category = (await prisma.category.findUnique({
+      where: { id },
+      select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
+    })) as Promise<Pick<Category, Key> | null>;
+
+    if (!category) {
+      throw ErrNotFound.withLog(`The category with ${id} not found`);
+    }
     return category;
   };
 
-  public findByCond = async (condition: CategoryCondDTO) => {
-    const category = await prisma.category.findFirst({ where: condition });
+  public findByCond = async <Key extends keyof Category>(
+    condition: CategoryCondDTO,
+    keys: Key[] = ['id', 'name', 'slug', 'parentId', 'status', 'createdAt', 'updatedAt'] as Key[]
+  ) => {
+    const category = (await prisma.category.findFirst({
+      where: condition,
+      select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
+    })) as Promise<Pick<Category, Key> | null>;
+
+    if (!category) {
+      throw ErrNotFound.withLog(`The category not found`);
+    }
     return category;
   };
 
   public update = async (id: Category['id'], data: CategoryUpdateDTO) => {
+    const existingCategory = await prisma.category.findUnique({ where: { id } });
+    if (!existingCategory) throw ErrNotFound.withLog(`The category with ${id} not found`);
+
     const preData = data.name ? { ...data, slug: toSlug(data.name) } : data;
 
     const updatedCategory = await prisma.category.update({ where: { id }, data: preData });

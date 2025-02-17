@@ -7,6 +7,7 @@ import { productCreateDTOSchema, productIdDTOSchema, productUpdateDTOSchema } fr
 const router: Router = express.Router();
 
 export function productRoutes(): Router {
+  router.get('/:id', validatorMiddleware(productIdDTOSchema, ValidationSource.PARAM), productController.findById);
   router.post('/', validatorMiddleware(productCreateDTOSchema), productController.create);
   router.patch(
     '/:id',

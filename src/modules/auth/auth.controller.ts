@@ -27,6 +27,7 @@ class AuthController {
       metadata: data
     }).send(res);
   };
+
   public register = async (req: Request, res: Response) => {
     logger.info(`AuthController.register - request received`);
     const user = await authService.register(req.body);

@@ -1,0 +1,37 @@
+import z from 'zod';
+
+export const tokenSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  token: z.string(),
+  isBlacklisted: z.boolean(),
+  ipAddress: z.string().optional(),
+  userAgent: z.string().optional(),
+  expiresAt: z.date(),
+  createdAt: z.date(),
+  updatedAt: z.date()
+});
+
+export type Token = z.infer<typeof tokenSchema>;
+
+export const tokenCreateDTOSchema = tokenSchema
+  .pick({
+    token: true,
+    userId: true,
+    isBlacklisted: true,
+    ipAddress: true,
+    userAgent: true,
+    expiresAt: true
+  })
+  .partial()
+  .required({ token: true, userId: true, expiresAt: true });
+
+export type TokenCreateDTO = z.infer<typeof tokenCreateDTOSchema>;
+
+export const tokenIdDTOSchema = tokenSchema
+  .pick({
+    id: true
+  })
+  .required();
+
+export type TokenIdDTO = z.infer<typeof tokenIdDTOSchema>;

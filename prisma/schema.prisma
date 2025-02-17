@@ -20,8 +20,9 @@ model User {
   status          user_status? @default(active) @map("status")
   role            user_role    @default(user) @map("role")
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamptz
-  token           Token?
+  updatedAt       DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  tokens Token[]
 
   @@index([status], map: "status")
   @@index([role], map: "role")
@@ -29,15 +30,19 @@ model User {
 }
 
 model Token {
-  id        String   @id @default(uuid()) @map("id") @db.Uuid
-  token     String   @map("token")
-  expiresIn BigInt   @map("expires_in")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz
-  userId    String   @unique @map("user_id") @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String   @id @default(uuid()) @map("id") @db.Uuid
+  token         String   @map("token")
+  expiresAt     DateTime @map("expires_at") @db.Timestamptz
+  isBlacklisted Boolean  @default(false) @map("is_blacklisted")
+  ipAddress     String?  @map("ip_address") @db.VarChar(45)
+  userAgent     String?  @map("user_agent") @db.VarChar(100)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  userId        String   @map("user_id") @db.Uuid
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "user_id")
+  @@index([userId], map: "token_user_id")
+  @@index([isBlacklisted], map: "idx_blacklisted")
   @@map("token")
 }
 

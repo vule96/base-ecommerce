@@ -8,7 +8,11 @@ class AuthController {
   public login = async (req: Request, res: Response) => {
     logger.info(`AuthController.login - request received`);
     const { username, password } = req.body;
-    const data = await authService.login(username, password);
+
+    const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+
+    const data = await authService.login(username, password, ipAddress as string, userAgent);
 
     setCookies(res, {
       accessToken: data.accessToken,

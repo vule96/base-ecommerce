@@ -11,7 +11,7 @@ import { userService } from '~/services/db/user.service';
 import { AppError } from '~/utils/error';
 
 class AuthService {
-  public login = async (usernameOrEmail: string, password: string) => {
+  public login = async (usernameOrEmail: string, password: string, ipAddress: string, userAgent: string) => {
     // 1. Find user with username or email
     const user = await userService.getUserByUsernameOrEmail(usernameOrEmail);
 
@@ -43,10 +43,12 @@ class AuthService {
     const tokenData = {
       token: refreshToken,
       userId: user.id,
-      expiresIn: refreshTokenExpiresIn as unknown as bigint
+      ipAddress,
+      userAgent,
+      expiresAt: new Date(refreshTokenExpiresIn * 1000)
     };
 
-    await tokenService.upsert(tokenData);
+    await tokenService.create(tokenData);
 
     return {
       ...userData,

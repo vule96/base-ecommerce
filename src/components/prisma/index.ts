@@ -34,7 +34,7 @@ export async function disconnectPrisma() {
   try {
     if (global.prismaGlobal) {
       await global.prismaGlobal.$disconnect();
-      logger.info('Successfully disconnected from the database');
+      logger.success('Disconnected from the database');
     } else {
       logger.warning('No Prisma client to disconnect');
     }

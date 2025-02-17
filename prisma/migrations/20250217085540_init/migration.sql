@@ -33,7 +33,10 @@ CREATE TABLE "user" (
 CREATE TABLE "token" (
     "id" UUID NOT NULL,
     "token" TEXT NOT NULL,
-    "expires_in" BIGINT NOT NULL,
+    "expires_at" TIMESTAMPTZ NOT NULL,
+    "is_blacklisted" BOOLEAN NOT NULL DEFAULT false,
+    "ip_address" VARCHAR(45),
+    "user_agent" VARCHAR(100),
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "user_id" UUID NOT NULL,
@@ -82,10 +85,10 @@ CREATE INDEX "status" ON "user"("status");
 CREATE INDEX "role" ON "user"("role");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "token_user_id_key" ON "token"("user_id");
+CREATE INDEX "token_user_id" ON "token"("user_id");
 
 -- CreateIndex
-CREATE INDEX "user_id" ON "token"("user_id");
+CREATE INDEX "idx_blacklisted" ON "token"("is_blacklisted");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "product_name_key" ON "product"("name");

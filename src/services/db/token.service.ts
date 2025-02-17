@@ -1,18 +1,23 @@
-import type { Token } from '@prisma/client';
+import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
+import type { Token, TokenCreateDTO } from '~/modules/token/token.schema';
+import { ToNullProps } from '~/shared/interface/utility';
 
 class TokenService {
-  public upsert = async ({ token, userId, expiresIn }: Pick<Token, 'token' | 'userId' | 'expiresIn'>) => {
-    return prisma.token.upsert({
-      where: {
-        userId
-      },
-      create: {
-        token,
-        userId,
-        expiresIn
-      },
-      update: { token, expiresIn, updatedAt: new Date() }
+  public create = async (data: TokenCreateDTO): Promise<ToNullProps<Token> | undefined> => {
+    const newId = v7();
+    const newToken: Token = {
+      ...data,
+      id: newId,
+      isBlacklisted: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    return prisma.token.create({
+      data: {
+        ...newToken
+      }
     });
   };
 }

@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+
 import { env } from '~/config';
 import logger from '~/utils/logger';
 

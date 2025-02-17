@@ -1,6 +1,7 @@
 import type { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { v7 } from 'uuid';
+
 import { prisma } from '~/components/prisma';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
 import { Status, UserRole } from '~/shared/interface';

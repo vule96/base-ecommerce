@@ -1,5 +1,6 @@
 import morgan, { StreamOptions } from 'morgan';
 import os from 'os';
+
 import { isDevelopment } from '~/utils';
 import logger from '~/utils/logger';
 

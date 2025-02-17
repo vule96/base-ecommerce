@@ -1,4 +1,5 @@
 import type { Response } from 'express';
+
 import { TokenResponse } from '~/shared/interface';
 
 export const accessTokenKey = 'access-token';

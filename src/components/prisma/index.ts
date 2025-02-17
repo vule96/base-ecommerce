@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+
 import { isProduction } from '~/utils';
 import logger from '~/utils/logger';
 

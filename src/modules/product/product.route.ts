@@ -1,4 +1,5 @@
 import express, { Router } from 'express';
+
 import { ValidationSource, validatorMiddleware } from '~/middlewares/validator.middleware';
 import { productController } from '~/modules/product/product.controller';
 import { productCreateDTOSchema, productIdDTOSchema, productUpdateDTOSchema } from '~/modules/product/product.schema';

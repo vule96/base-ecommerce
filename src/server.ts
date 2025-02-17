@@ -1,12 +1,15 @@
+import 'express-async-errors';
+import 'reflect-metadata';
+
 import compression from 'compression';
 import cors from 'cors';
 import { type Application, json, urlencoded } from 'express';
-import 'express-async-errors';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import http, { Server } from 'http';
 import RedisStore from 'rate-limit-redis';
+
 import { RedisClient } from '~/components/cached/redis';
 import { connectPrisma, disconnectPrisma } from '~/components/prisma';
 import { env } from '~/config';

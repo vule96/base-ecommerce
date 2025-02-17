@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { resolve } from 'path';
 import { createLogger, format, Logger as LoggerType, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+
 import { env } from '~/config';
 
 const errorColor = chalk.red.bold;

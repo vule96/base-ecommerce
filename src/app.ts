@@ -1,4 +1,5 @@
 import express, { type Express } from 'express';
+
 import { start } from '~/server';
 
 const initialize = async () => {

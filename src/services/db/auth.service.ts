@@ -2,6 +2,7 @@ import type { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { StatusCodes } from 'http-status-codes';
+
 import jwt, { JwtPayload } from '~/components/jwt';
 import { env } from '~/config';
 import { ErrInvalidUsernameAndPassword } from '~/modules/auth/auth.error';

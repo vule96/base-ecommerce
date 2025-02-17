@@ -1,7 +1,8 @@
 import { v7 } from 'uuid';
+
 import { prisma } from '~/components/prisma';
 import type { Token, TokenCreateDTO } from '~/modules/token/token.schema';
-import { ToNullProps } from '~/shared/interface/utility';
+import type { ToNullProps } from '~/shared/interface/utility';
 
 class TokenService {
   public create = async (data: TokenCreateDTO): Promise<ToNullProps<Token> | undefined> => {

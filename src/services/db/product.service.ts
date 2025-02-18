@@ -2,11 +2,11 @@ import { Product } from '@prisma/client';
 import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
+import { ErrNotFound } from '~/core/error';
 import type { ProductCreateDTO, ProductUpdateDTO } from '~/modules/product/product.schema';
 import { Status } from '~/shared/interface';
 import type { ToNullProps } from '~/shared/interface/utility';
-import { ErrNotFound } from '~/utils/error';
-import { toSlug } from '~/utils/helpers';
+import { toSlug } from '~/utils/string';
 
 class ProductService {
   public create = async (data: ToNullProps<ProductCreateDTO>): Promise<Product> => {

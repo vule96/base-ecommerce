@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 
+import logger from '~/core/logger';
+import { OkResponse } from '~/core/success';
 import { authService } from '~/services/db/auth.service';
-import { setCookies } from '~/utils/cookie';
-import logger from '~/utils/logger';
-import { OkResponse } from '~/utils/success';
+import { removeCookies, setCookies } from '~/utils/cookie';
 
 class AuthController {
   public login = async (req: Request, res: Response) => {
@@ -34,6 +34,18 @@ class AuthController {
     new OkResponse({
       message: 'Registered successfully',
       metadata: user
+    }).send(res);
+  };
+
+  public logout = async (req: Request, res: Response) => {
+    logger.info(`UserController.logout - request received`);
+
+    await authService.logout(req.currentUser.refreshToken);
+    removeCookies(res);
+
+    new OkResponse({
+      message: 'Logged out successfully',
+      metadata: {}
     }).send(res);
   };
 }

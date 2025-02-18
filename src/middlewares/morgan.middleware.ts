@@ -1,8 +1,8 @@
 import morgan, { StreamOptions } from 'morgan';
 import os from 'os';
 
-import { isDevelopment } from '~/utils';
-import logger from '~/utils/logger';
+import logger from '~/core/logger';
+import { isDevelopment } from '~/utils/common';
 
 const stream: StreamOptions = {
   write: (message) => logger.http(message.replace(os.EOL, ''))

@@ -35,3 +35,15 @@ export const tokenIdDTOSchema = tokenSchema
   .required();
 
 export type TokenIdDTO = z.infer<typeof tokenIdDTOSchema>;
+
+export const tokenCondDTOSchema = tokenSchema
+  .pick({
+    token: true,
+    isBlacklisted: true,
+    ipAddress: true,
+    userAgent: true,
+    expiresAt: true
+  })
+  .partial();
+
+export type TokenCondDTO = z.infer<typeof tokenCondDTOSchema>;

@@ -1,7 +1,7 @@
 import { createClient, type RedisClientType } from 'redis';
 
-import { env } from '~/config';
-import logger from '~/utils/logger';
+import { env } from '~/core/config';
+import logger from '~/core/logger';
 
 export class RedisClient {
   private static instance: RedisClient | null = null;

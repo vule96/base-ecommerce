@@ -4,12 +4,12 @@ import crypto from 'crypto';
 import { StatusCodes } from 'http-status-codes';
 
 import jwt, { JwtPayload } from '~/components/jwt';
-import { env } from '~/config';
+import { env } from '~/core/config';
+import { AppError } from '~/core/error';
 import { ErrInvalidUsernameAndPassword } from '~/modules/auth/auth.error';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
 import { tokenService } from '~/services/db/token.service';
 import { userService } from '~/services/db/user.service';
-import { AppError } from '~/utils/error';
 
 class AuthService {
   public login = async (usernameOrEmail: string, password: string, ipAddress: string, userAgent: string) => {
@@ -63,6 +63,13 @@ class AuthService {
   public register = async (data: UserRegistrationDTO) => {
     const user = await userService.create(data);
     return user;
+  };
+
+  public logout = async (token: string) => {
+    const refreshToken = await tokenService.findByCond({ token, isBlacklisted: false });
+    if (refreshToken) {
+      await tokenService.delete(refreshToken.id);
+    }
   };
 
   private createTokens = async (user: User, accessTokenKey: string, refreshTokenKey: string) => {

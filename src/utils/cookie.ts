@@ -2,8 +2,8 @@ import type { Response } from 'express';
 
 import { TokenResponse } from '~/shared/interface';
 
-export const accessTokenKey = 'access-token';
-export const refreshTokenKey = 'refresh-token';
+export const accessTokenKey = 'access_token';
+export const refreshTokenKey = 'refresh_token';
 
 export function setCookies(res: Response, data: TokenResponse) {
   res.cookie(

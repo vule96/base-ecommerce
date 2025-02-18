@@ -1,6 +1,7 @@
 import 'express-async-errors';
 
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { type Application, json, urlencoded } from 'express';
 import rateLimit from 'express-rate-limit';
@@ -10,13 +11,14 @@ import http, { Server } from 'http';
 import RedisStore from 'rate-limit-redis';
 
 import { RedisClient } from '~/components/cached/redis';
+import passport from '~/components/passport';
 import { connectPrisma, disconnectPrisma } from '~/components/prisma';
-import { env } from '~/config';
+import { env } from '~/core/config';
+import { ErrNotFound } from '~/core/error';
+import logger from '~/core/logger';
 import { errorHandler } from '~/middlewares/error.middleware';
 import { morganMiddleware } from '~/middlewares/morgan.middleware';
 import { appRoutes } from '~/routes';
-import { ErrNotFound } from '~/utils/error';
-import logger from '~/utils/logger';
 
 let server: Server;
 const SERVER_PORT = env.PORT;
@@ -43,6 +45,7 @@ async function connectDependencies(): Promise<void> {
 
 async function standardMiddleware(app: Application): Promise<void> {
   app.use(morganMiddleware);
+  app.use(cookieParser());
   app.use(compression());
   app.use(json({ limit: '200mb' }));
   app.use(urlencoded({ extended: true, limit: '200mb' }));
@@ -79,6 +82,9 @@ function securityMiddleware(app: Application): void {
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
     })
   );
+
+  // jwt authentication
+  app.use(passport.initialize());
 }
 
 const routesMiddleware = (app: Application): void => {

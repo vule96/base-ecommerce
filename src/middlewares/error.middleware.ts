@@ -2,10 +2,10 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 
-import { isProduction } from '~/utils';
-import { AppError, ErrInternalServer, ErrInvalidRequest, PrismaErrorCode, PrismaErrorCodes } from '~/utils/error';
-import { firstLetterUppercase } from '~/utils/helpers';
-import logger from '~/utils/logger';
+import { AppError, ErrInternalServer, ErrInvalidRequest, PrismaErrorCode, PrismaErrorCodes } from '~/core/error';
+import logger from '~/core/logger';
+import { isProduction } from '~/utils/common';
+import { firstLetterUppercase } from '~/utils/string';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const errorHandler = (error: Error, request: Request, response: Response, _next: NextFunction) => {

@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 
-import { env } from '~/config';
-import logger from '~/utils/logger';
+import { env } from '~/core/config';
+import logger from '~/core/logger';
 
 export class Database {
   private pool: Pool | null = null;

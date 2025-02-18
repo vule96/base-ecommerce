@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import { createLogger, format, Logger as LoggerType, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 
-import { env } from '~/config';
+import { env } from '~/core/config';
 
 const errorColor = chalk.red.bold;
 const warningColor = chalk.yellow.bold;

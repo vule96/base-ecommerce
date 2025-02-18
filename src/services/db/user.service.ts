@@ -3,10 +3,10 @@ import bcrypt from 'bcrypt';
 import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
+import { ErrConflict, ErrNotFound } from '~/core/error';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
 import { Status, UserRole } from '~/shared/interface';
-import { ErrConflict, ErrNotFound } from '~/utils/error';
-import { lowerCase } from '~/utils/helpers';
+import { lowerCase } from '~/utils/string';
 
 class UserService {
   public getUserByEmail = async <Key extends keyof User>(

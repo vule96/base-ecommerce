@@ -1,7 +1,8 @@
 import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
-import type { Token, TokenCreateDTO } from '~/modules/token/token.schema';
+import { ErrNotFound } from '~/core/error';
+import type { Token, TokenCondDTO, TokenCreateDTO } from '~/modules/token/token.schema';
 import type { ToNullProps } from '~/shared/interface/utility';
 
 class TokenService {
@@ -20,6 +21,35 @@ class TokenService {
         ...newToken
       }
     });
+  };
+
+  public findByCond = async <Key extends keyof Token>(
+    condition: TokenCondDTO,
+    keys: Key[] = [
+      'id',
+      'token',
+      'isBlacklisted',
+      'expiresAt',
+      'ipAddress',
+      'userAgent',
+      'createdAt',
+      'updatedAt'
+    ] as Key[]
+  ) => {
+    const token = (await prisma.token.findFirst({
+      where: condition,
+      select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
+    })) as Promise<Pick<Token, Key> | null>;
+
+    if (!token) {
+      throw ErrNotFound.withLog(`The token not found`);
+    }
+    return token;
+  };
+
+  public delete = async (id: Token['id']) => {
+    await prisma.token.delete({ where: { id } });
+    return true;
   };
 }
 

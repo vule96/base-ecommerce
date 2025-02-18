@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 
-import { OkResponse } from '~/utils/success';
+import { OkResponse } from '~/core/success';
 
 const router: Router = express.Router();
 

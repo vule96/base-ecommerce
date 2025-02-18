@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
-import { isProduction } from '~/utils';
-import logger from '~/utils/logger';
+import logger from '~/core/logger';
+import { isProduction } from '~/utils/common';
 
 const prismaClientSingleton = () => {
   return new PrismaClient();

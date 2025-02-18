@@ -2,11 +2,11 @@ import type { Category } from '@prisma/client';
 import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
+import { ErrNotFound } from '~/core/error';
 import type { CategoryCondDTO, CategoryCreateDTO, CategoryUpdateDTO } from '~/modules/category/category.schema';
 import { Status } from '~/shared/interface';
 import type { ToNullProps } from '~/shared/interface/utility';
-import { ErrNotFound } from '~/utils/error';
-import { toSlug } from '~/utils/helpers';
+import { toSlug } from '~/utils/string';
 
 class CategoryService {
   public create = async (data: ToNullProps<CategoryCreateDTO>): Promise<Category | undefined> => {

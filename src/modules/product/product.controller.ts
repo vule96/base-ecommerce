@@ -1,8 +1,8 @@
 import type { Request, Response } from 'express';
 
+import logger from '~/core/logger';
+import { OkResponse } from '~/core/success';
 import { productService } from '~/services/db/product.service';
-import logger from '~/utils/logger';
-import { OkResponse } from '~/utils/success';
 
 class ProductController {
   public create = async (req: Request, res: Response) => {

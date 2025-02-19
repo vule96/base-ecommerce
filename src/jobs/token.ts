@@ -4,13 +4,13 @@ import logger from '~/core/logger';
 import { tokenService } from '~/services/db/token.service';
 
 const cleanExpiredTokens = async () => {
-  console.log('[Cron Job] Cleaning expired refresh tokens...');
+  logger.info('[Cron Job] Cleaning expired refresh tokens...');
 
   const deletedCount = await tokenService.deleteExpiredTokens();
 
   logger.info(`[Cron Job] Deleted ${deletedCount} expired tokens.`);
 };
 
-const job = new CronJob('0 0 * * *', cleanExpiredTokens, null, true, 'UTC');
+const job = new CronJob('0 * * * *', cleanExpiredTokens, null, true, 'UTC');
 
 export default job;

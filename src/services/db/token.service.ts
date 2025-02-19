@@ -51,6 +51,16 @@ class TokenService {
     await prisma.token.delete({ where: { id } });
     return true;
   };
+
+  public deleteExpiredTokens = async (): Promise<number> => {
+    const now = new Date();
+    const { count } = await prisma.token.deleteMany({
+      where: {
+        expiresAt: { lt: now }
+      }
+    });
+    return count;
+  };
 }
 
 export const tokenService: TokenService = new TokenService();

@@ -1,4 +1,5 @@
 import 'express-async-errors';
+import '~/jobs/token';
 
 import compression from 'compression';
 import cookieParser from 'cookie-parser';

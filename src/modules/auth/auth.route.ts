@@ -10,6 +10,7 @@ const router: Router = express.Router();
 export function authRoutes(): Router {
   router.post('/login', validatorMiddleware(userLoginDTOSchema), authController.login);
   router.post('/register', validatorMiddleware(userRegistrationDTOSchema), authController.register);
+  router.post('/refresh', authController.refresh);
   router.post('/logout', auth, authController.logout);
   return router;
 }

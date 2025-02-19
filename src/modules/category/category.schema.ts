@@ -35,7 +35,12 @@ export const categoryCondDTOSchema = categorySchema
 
 export type CategoryCondDTO = z.infer<typeof categoryCondDTOSchema>;
 
-export const categoryUpdateDTOSchema = categorySchema.pick({ name: true, parentId: true, status: true }).partial();
+export const categoryUpdateDTOSchema = categorySchema
+  .pick({ name: true, status: true })
+  .partial()
+  .extend({
+    parentId: z.string().uuid().or(z.literal('')).optional()
+  });
 
 export type CategoryUpdateDTO = z.infer<typeof categoryUpdateDTOSchema>;
 

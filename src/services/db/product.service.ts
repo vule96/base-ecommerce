@@ -53,10 +53,12 @@ class ProductService {
   };
 
   public update = async (id: Product['id'], data: ProductUpdateDTO) => {
-    const existingProduct = await prisma.product.findUnique({ where: { id } });
-    if (!existingProduct) throw ErrNotFound.withLog(`The product with ${id} not found`);
+    await this.findById(id, ['id']);
 
-    const preData = data.name ? { ...data, slug: toSlug(data.name) } : data;
+    const preData = {
+      ...data,
+      slug: data.name ? toSlug(data.name) : undefined
+    };
 
     const updatedProduct = await prisma.product.update({ where: { id }, data: preData });
     return updatedProduct;

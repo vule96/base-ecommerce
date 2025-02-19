@@ -3,9 +3,8 @@ import { Application } from 'express';
 import { authRoutes } from '~/modules/auth/auth.route';
 import { categoryRoutes } from '~/modules/category/category.route';
 import { healthRoutes } from '~/modules/health/route/health.route';
+import { productRoutes } from '~/modules/product/product.route';
 import { userRoutes } from '~/modules/user/user.route';
-
-import { productRoutes } from './modules/product/product.route';
 
 const BASE_PATH = '/api/v1';
 

@@ -58,12 +58,18 @@ class CategoryService {
   };
 
   public update = async (id: Category['id'], data: CategoryUpdateDTO) => {
-    const existingCategory = await prisma.category.findUnique({ where: { id } });
-    if (!existingCategory) throw ErrNotFound.withLog(`The category with ${id} not found`);
+    await this.findById(id, ['id']);
 
-    const preData = data.name ? { ...data, slug: toSlug(data.name) } : data;
+    const preData = {
+      ...data,
+      slug: data.name ? toSlug(data.name) : undefined,
+      parentId: data.parentId || null
+    };
 
-    const updatedCategory = await prisma.category.update({ where: { id }, data: preData });
+    const updatedCategory = await prisma.category.update({
+      where: { id },
+      data: preData
+    });
     return updatedCategory;
   };
 }

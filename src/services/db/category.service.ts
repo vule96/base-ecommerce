@@ -34,7 +34,7 @@ class CategoryService {
     const category = (await prisma.category.findUnique({
       where: { id },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    })) as Promise<Pick<Category, Key> | null>;
+    })) as Pick<Category, Key> | null;
 
     if (!category) {
       throw ErrNotFound.withLog(`The category with ${id} not found`);
@@ -49,7 +49,7 @@ class CategoryService {
     const category = (await prisma.category.findFirst({
       where: condition,
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    })) as Promise<Pick<Category, Key> | null>;
+    })) as Pick<Category, Key> | null;
 
     if (!category) {
       throw ErrNotFound.withLog(`The category not found`);

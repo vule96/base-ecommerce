@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
@@ -39,7 +40,7 @@ class TokenService {
     const token = (await prisma.token.findFirst({
       where: condition,
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    })) as Promise<Pick<Token, Key> | null>;
+    })) as Pick<Token, Key> | null;
 
     if (!token) {
       throw ErrNotFound.withLog(`The token not found`);
@@ -47,19 +48,18 @@ class TokenService {
     return token;
   };
 
-  public delete = async (id: Token['id']) => {
-    await prisma.token.delete({ where: { id } });
+  public delete = async (condition: Prisma.TokenWhereUniqueInput) => {
+    await prisma.token.delete({ where: condition });
     return true;
   };
 
-  public deleteExpiredTokens = async (): Promise<number> => {
-    const now = new Date();
-    const { count } = await prisma.token.deleteMany({
-      where: {
-        expiresAt: { lt: now }
-      }
-    });
+  public deleteMany = async (condition: Prisma.TokenWhereInput): Promise<number> => {
+    const { count } = await prisma.token.deleteMany({ where: condition });
     return count;
+  };
+
+  public deleteExpiredTokens = async (): Promise<number> => {
+    return this.deleteMany({ expiresAt: { lt: new Date() } });
   };
 }
 

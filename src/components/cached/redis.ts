@@ -74,7 +74,7 @@ export class RedisClient {
     if (this.redisClient) {
       try {
         await this.redisClient.disconnect();
-        logger.info('Disconnected from Redis server');
+        logger.success('Disconnected from Redis server');
       } catch (error) {
         logger.error(`Error during Redis disconnect: ${error}`);
       } finally {

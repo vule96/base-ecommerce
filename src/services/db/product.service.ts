@@ -44,7 +44,7 @@ class ProductService {
     const product = (await prisma.product.findUnique({
       where: { id },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    })) as Promise<Pick<Product, Key> | null>;
+    })) as Pick<Product, Key> | null;
 
     if (!product) {
       throw ErrNotFound.withLog(`The product with ${id} not found`);

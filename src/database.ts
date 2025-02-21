@@ -60,7 +60,7 @@ export class Database {
 
   public async disconnect(): Promise<void> {
     if (this.pool) {
-      logger.info('Disconnected database');
+      logger.success('Disconnected database');
       await this.pool.end();
       this.pool = null;
     } else {

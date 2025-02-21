@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { readFile } from 'fs';
 import { sign, verify } from 'jsonwebtoken';
@@ -53,8 +52,12 @@ async function readPrivateKey(): Promise<string> {
 async function encode(payload: JwtPayload): Promise<string> {
   const privateKey = await readPrivateKey();
   if (!privateKey) throw new Error('Token generation failure');
-  // @ts-expect-error
-  return promisify(sign)({ ...payload }, privateKey, { algorithm: 'RS256' });
+  return new Promise((resolve, reject) => {
+    sign({ ...payload }, privateKey, { algorithm: 'RS256' }, (err, token) => {
+      if (err) return reject(err);
+      resolve(token as string);
+    });
+  });
 }
 
 /**
@@ -62,14 +65,15 @@ async function encode(payload: JwtPayload): Promise<string> {
  */
 async function validate(token: string): Promise<JwtPayload> {
   const publicKey = await readPublicKey();
-  try {
-    // @ts-expect-error
-    return (await promisify(verify)(token, publicKey)) as JwtPayload;
-  } catch (e: any) {
-    if (e && e.name === 'TokenExpiredError') throw new Error();
-    // throws error if the token has not been encrypted by the private key
-    throw new Error('Invalid token');
-  }
+  return new Promise((resolve, reject) => {
+    verify(token, publicKey, (err, decoded) => {
+      if (err) {
+        if (err.name === 'TokenExpiredError') return reject(new Error('Token expired'));
+        return reject(new Error('Invalid token'));
+      }
+      resolve(decoded as JwtPayload);
+    });
+  });
 }
 
 /**
@@ -77,14 +81,12 @@ async function validate(token: string): Promise<JwtPayload> {
  */
 async function decode(token: string): Promise<JwtPayload> {
   const publicKey = await readPublicKey();
-  try {
-    // @ts-expect-error
-    return (await promisify(verify)(token, publicKey, {
-      ignoreExpiration: true
-    })) as JwtPayload;
-  } catch (e: any) {
-    throw new Error('Invalid token');
-  }
+  return new Promise((resolve, reject) => {
+    verify(token, publicKey, { ignoreExpiration: true }, (err, decoded) => {
+      if (err) return reject(new Error('Invalid token'));
+      resolve(decoded as JwtPayload);
+    });
+  });
 }
 
 export default {

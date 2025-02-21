@@ -55,7 +55,7 @@ model Product {
   // sku              String          @map("sku") @db.VarChar(100)
   status           product_status? @default(active) @map("status")
   createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt        DateTime        @default(now()) @map("updated_at") @db.Timestamptz
+  updatedAt        DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
   categoryId       String?         @map("category_id") @db.Uuid
   category         Category?       @relation(fields: [categoryId], references: [id])
 
@@ -69,10 +69,10 @@ model Category {
   parentId  String?          @map("parent_id") @db.Uuid
   status    category_status? @default(active) @map("status")
   createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime         @default(now()) @map("updated_at") @db.Timestamptz
+  updatedAt DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
   parent    Category?        @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children  Category[]       @relation("CategoryHierarchy")
-  Product   Product[]
+  products  Product[]
 
   @@index([parentId], map: "parent_id")
   @@map("category")

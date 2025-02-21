@@ -69,7 +69,7 @@ class AuthService {
   public logout = async (token: string) => {
     const refreshToken = await tokenService.findByCond({ token, isBlacklisted: false });
     if (refreshToken) {
-      await tokenService.delete(refreshToken.id);
+      await tokenService.delete({ id: refreshToken.id });
     }
   };
 
@@ -107,7 +107,7 @@ class AuthService {
       refreshTokenKey
     );
 
-    await tokenService.delete(storedToken.id);
+    await tokenService.delete({ id: storedToken.id });
 
     const tokenData = {
       token: refreshToken,

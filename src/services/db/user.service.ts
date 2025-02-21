@@ -28,7 +28,7 @@ class UserService {
     return prisma.user.findUnique({
       where: { email },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    }) as Promise<Pick<User, Key> | null>;
+    }) as unknown as Pick<User, Key> | null;
   };
 
   public getUserByUsername = async <Key extends keyof User>(
@@ -37,8 +37,6 @@ class UserService {
       'id',
       'email',
       'username',
-      'password',
-      'salt',
       'firstName',
       'lastName',
       'role',
@@ -50,7 +48,7 @@ class UserService {
     return prisma.user.findUnique({
       where: { username },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    }) as Promise<Pick<User, Key> | null>;
+    }) as unknown as Pick<User, Key> | null;
   };
 
   public getUserByUsernameOrEmail = async <Key extends keyof User>(
@@ -74,7 +72,7 @@ class UserService {
         OR: [{ username: usernameOrEmail }, { email: lowerCase(usernameOrEmail) }]
       },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    }) as Promise<Pick<User, Key> | null>;
+    }) as unknown as Pick<User, Key> | null;
   };
 
   public create = async (data: UserRegistrationDTO): Promise<User> => {
@@ -122,10 +120,10 @@ class UserService {
       'updatedAt'
     ] as Key[]
   ) => {
-    const user = prisma.user.findUnique({
+    const user = (await prisma.user.findUnique({
       where: { id },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    }) as Promise<Pick<User, Key> | null>;
+    })) as Pick<User, Key> | null;
 
     if (!user) {
       throw ErrNotFound.withLog(`The user with ${id} not found`);

@@ -30,7 +30,7 @@ passport.use(
   new JwtStrategy(options, async (req: Request, payload: JwtPayloadType, done) => {
     try {
       const user = await userService.findById(payload.sub);
-      const refreshToken = JSON.parse(req.cookies.refresh_token).token;
+      const refreshToken = req.cookies?.refresh_token ? JSON.parse(req.cookies.refresh_token).token : null;
 
       if (!user) {
         return done(null, false);

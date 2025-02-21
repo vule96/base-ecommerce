@@ -7,11 +7,13 @@ import {
   categoryIdDTOSchema,
   categoryUpdateDTOSchema
 } from '~/modules/category/category.schema';
+import { pagingDTOSchema } from '~/shared/model';
 
 const router: Router = express.Router();
 
 export function categoryRoutes(): Router {
   router.get('/:id', validatorMiddleware(categoryIdDTOSchema, ValidationSource.PARAM), categoryController.findById);
+  router.get('/', validatorMiddleware(pagingDTOSchema, ValidationSource.QUERY), categoryController.list);
   router.post('/', validatorMiddleware(categoryCreateDTOSchema), categoryController.create);
   router.patch(
     '/:id',

@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 
 import logger from '~/core/logger';
-import { OkResponse } from '~/core/success';
+import { OkResponse, PagingResponse } from '~/core/success';
 import { productService } from '~/services/db/product.service';
 
 class ProductController {
@@ -33,6 +33,18 @@ class ProductController {
     new OkResponse({
       message: 'Find product by id successfully',
       metadata: product || {}
+    }).send(res);
+  };
+
+  public list = async (req: Request, res: Response) => {
+    logger.info(`ProductController.list - request received`);
+
+    const products = await productService.list(req.paging);
+
+    new PagingResponse({
+      message: 'List products successfully',
+      metadata: products.data,
+      paging: products.paging
     }).send(res);
   };
 }

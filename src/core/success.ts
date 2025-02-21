@@ -1,6 +1,8 @@
 import type { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
+import type { PagingDTOResponse } from '~/shared/model';
+
 interface ISuccessResponse {
   message: string | number;
   statusCode: number;
@@ -14,7 +16,7 @@ class SuccessResponse {
   metadata: object | string | number;
 
   constructor({ message, statusCode, reasonStatusCode, metadata = {} }: ISuccessResponse) {
-    this.message = !message ? reasonStatusCode : message;
+    this.message = message || reasonStatusCode;
     this.statusCode = statusCode;
     this.metadata = metadata;
   }
@@ -30,13 +32,17 @@ class OkResponse extends SuccessResponse {
   }
 }
 
-class CreatedResponse extends SuccessResponse {
-  options: object;
+class PagingResponse extends SuccessResponse {
+  paging: PagingDTOResponse;
 
-  constructor({ message, metadata, options }: Pick<SuccessResponse, 'message' | 'metadata'> & { options: object }) {
-    super({ message, statusCode: StatusCodes.CREATED, reasonStatusCode: StatusCodes.CREATED, metadata });
-    this.options = options;
+  constructor({
+    message,
+    metadata,
+    paging
+  }: Pick<SuccessResponse, 'message' | 'metadata'> & { paging: PagingDTOResponse }) {
+    super({ message, statusCode: StatusCodes.OK, reasonStatusCode: StatusCodes.CREATED, metadata });
+    this.paging = paging;
   }
 }
 
-export { CreatedResponse, OkResponse };
+export { OkResponse, PagingResponse };

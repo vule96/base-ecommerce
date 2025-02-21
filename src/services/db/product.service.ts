@@ -6,6 +6,7 @@ import { ErrNotFound } from '~/core/error';
 import type { ProductCreateDTO, ProductUpdateDTO } from '~/modules/product/product.schema';
 import { Status } from '~/shared/interface';
 import type { ToNullProps } from '~/shared/interface/utility';
+import type { Paginated, PagingDTO } from '~/shared/model';
 import { toSlug } from '~/utils/string';
 
 class ProductService {
@@ -62,6 +63,26 @@ class ProductService {
 
     const updatedProduct = await prisma.product.update({ where: { id }, data: preData });
     return updatedProduct;
+  };
+
+  public list = async (paging: PagingDTO): Promise<Paginated<Product>> => {
+    const count = await prisma.product.count();
+
+    const skip = (paging.page - 1) * paging.limit;
+    const result = await prisma.product.findMany({
+      skip,
+      take: paging.limit,
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return {
+      data: result,
+      paging: {
+        page: paging.page,
+        limit: paging.limit,
+        total: count
+      }
+    };
   };
 }
 

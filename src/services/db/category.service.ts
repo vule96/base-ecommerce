@@ -6,6 +6,7 @@ import { ErrNotFound } from '~/core/error';
 import type { CategoryCondDTO, CategoryCreateDTO, CategoryUpdateDTO } from '~/modules/category/category.schema';
 import { Status } from '~/shared/interface';
 import type { ToNullProps } from '~/shared/interface/utility';
+import type { Paginated, PagingDTO } from '~/shared/model';
 import { toSlug } from '~/utils/string';
 
 class CategoryService {
@@ -71,6 +72,26 @@ class CategoryService {
       data: preData
     });
     return updatedCategory;
+  };
+
+  public list = async (paging: PagingDTO): Promise<Paginated<Category>> => {
+    const count = await prisma.category.count();
+
+    const skip = (paging.page - 1) * paging.limit;
+    const result = await prisma.category.findMany({
+      skip,
+      take: paging.limit,
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return {
+      data: result,
+      paging: {
+        page: paging.page,
+        limit: paging.limit,
+        total: count
+      }
+    };
   };
 }
 

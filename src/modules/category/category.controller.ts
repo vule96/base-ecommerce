@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 
 import logger from '~/core/logger';
-import { OkResponse } from '~/core/success';
+import { OkResponse, PagingResponse } from '~/core/success';
 import { categoryService } from '~/services/db/category.service';
 
 class CategoryController {
@@ -33,6 +33,18 @@ class CategoryController {
     new OkResponse({
       message: 'Find category by id successfully',
       metadata: category || {}
+    }).send(res);
+  };
+
+  public list = async (req: Request, res: Response) => {
+    logger.info(`CategoryController.list - request received`);
+
+    const categories = await categoryService.list(req.paging);
+
+    new PagingResponse({
+      message: 'List categories successfully',
+      metadata: categories.data,
+      paging: categories.paging
     }).send(res);
   };
 }

@@ -12,5 +12,8 @@ export const validatorMiddleware =
   (schema: ZodSchema, source: ValidationSource = ValidationSource.BODY) =>
   (req: Request, _res: Response, next: NextFunction) => {
     const result = schema.parse(req[source]);
-    if (result) next();
+    if (source === ValidationSource.QUERY) {
+      req.paging = result;
+    }
+    next();
   };

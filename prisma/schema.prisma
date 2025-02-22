@@ -24,41 +24,44 @@ model User {
 
   tokens Token[]
 
-  @@index([status], map: "status")
-  @@index([role], map: "role")
+  @@index([status], map: "idx_user_status")
+  @@index([role], map: "idx_user_role")
   @@map("user")
 }
 
 model Token {
-  id            String   @id @default(uuid()) @map("id") @db.Uuid
-  token         String   @map("token")
-  expiresAt     DateTime @map("expires_at") @db.Timestamptz
-  isBlacklisted Boolean  @default(false) @map("is_blacklisted")
-  ipAddress     String?  @map("ip_address") @db.VarChar(45)
-  userAgent     String?  @map("user_agent") @db.VarChar(100)
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  userId        String   @map("user_id") @db.Uuid
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid()) @map("id") @db.Uuid
+  token         String    @map("token")
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz
+  isBlacklisted Boolean   @default(false) @map("is_blacklisted")
+  ipAddress     String?   @map("ip_address") @db.VarChar(45)
+  userAgent     String?   @map("user_agent") @db.VarChar(100)
+  revokedAt     DateTime? @map("revoked_at") @db.Timestamptz
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  userId        String    @map("user_id") @db.Uuid
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "token_user_id")
+  @@index([userId], map: "idx_token_user_id")
   @@index([isBlacklisted], map: "idx_blacklisted")
   @@map("token")
 }
 
 model Product {
-  id               String          @id @default(uuid()) @map("id") @db.Uuid
-  name             String          @unique @map("name") @db.VarChar(100)
-  slug             String          @unique @map("slug") @db.VarChar(100)
-  description      String          @map("description") @db.Text
-  shortDescription String          @map("short_description") @db.VarChar(100)
-  // sku              String          @map("sku") @db.VarChar(100)
-  status           product_status? @default(active) @map("status")
-  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt        DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  categoryId       String?         @map("category_id") @db.Uuid
-  category         Category?       @relation(fields: [categoryId], references: [id])
+  id               String             @id @default(uuid()) @map("id") @db.Uuid
+  name             String             @unique @map("name") @db.VarChar(100)
+  slug             String             @unique @map("slug") @db.VarChar(100)
+  description      String             @map("description") @db.Text
+  shortDescription String             @map("short_description") @db.VarChar(100)
+  // sku              String             @map("sku") @db.VarChar(100)
+  status           product_status?    @default(active) @map("status")
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  categoryId       String?            @map("category_id") @db.Uuid
+  category         Category?          @relation(fields: [categoryId], references: [id])
+  productAttribute ProductAttribute[]
 
+  @@index([status], map: "idx_product_status")
   @@map("product")
 }
 
@@ -74,24 +77,49 @@ model Category {
   children  Category[]       @relation("CategoryHierarchy")
   products  Product[]
 
-  @@index([parentId], map: "parent_id")
+  @@index([parentId], map: "idx_category_parent_id")
   @@map("category")
 }
 
-// model ProductAttribute {
-//   id String @id @default(uuid()) @map("id") @db.Uuid
+model Attribute {
+  id               String             @id @default(uuid()) @map("id") @db.Uuid
+  name             String             @unique @map("name") @db.VarChar(100)
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  productAttribute ProductAttribute[]
 
-//   @@map("product_attribute")
-// }
+  @@map("attribute")
+}
+
+model ProductAttribute {
+  id          String    @id @default(uuid()) @map("id") @db.Uuid
+  productId   String    @map("product_id") @db.Uuid
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeId String    @map("attribute_id") @db.Uuid
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  value       String    @map("value") @db.VarChar(100)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Có thể dùng index gộp trong trường hợp phải tìm kiếm dựa trên cả product id và attribute id
+  //    @@index([productId, attributeId], map: "idx_product_attribute_product_attribute")
+  @@index([productId], map: "idx_product_attribute_product_id")
+  @@index([attributeId], map: "idx_product_attribute_attribute_id")
+  @@map("product_attribute")
+}
 
 enum user_status {
-  active
-  inactive
+  active // Người dùng có thể đăng nhập và sử dụng hệ thống
+  inactive // Người dùng bị vô hiệu hóa nhưng có thể kích hoạt lại
+  banned // Người dùng bị cấm vĩnh viễn, không thể truy cập
+  pending // Người dùng cần xác minh email trước khi kích hoạt
 }
 
 enum product_status {
-  active
-  inactive
+  draft // Sản phẩm đang được chỉnh sửa, chưa công khai
+  active // Sản phẩm đang hoạt động, khách hàng có thể thấy
+  inactive // Sản phẩm tạm ngừng kinh doanh, không hiển thị
+  archived // Sản phẩm bị lưu trữ, không thể khôi phục để bán lại
 }
 
 enum category_status {

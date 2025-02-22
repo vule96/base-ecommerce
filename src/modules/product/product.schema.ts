@@ -7,7 +7,7 @@ import {
   ErrSlugAtLeast2Chars,
   ErrStatusInvalid
 } from '~/modules/product/product.error';
-import { Status } from '~/shared/interface';
+import { ProductStatus } from '~/shared/interface';
 
 export const productSchema = z.object({
   id: z.string().uuid(),
@@ -16,7 +16,7 @@ export const productSchema = z.object({
   description: z.string().min(2, ErrDescriptionAtLeast2Chars.message),
   shortDescription: z.string().min(2, ErrShortDescriptionAtLeast2Chars.message),
   categoryId: z.string().uuid(),
-  status: z.nativeEnum(Status, ErrStatusInvalid),
+  status: z.nativeEnum(ProductStatus, ErrStatusInvalid),
   createdAt: z.date(),
   updatedAt: z.date()
 });
@@ -30,7 +30,6 @@ export const productCreateDTOSchema = productSchema
     shortDescription: true,
     categoryId: true
   })
-
   .required();
 
 export type ProductCreateDTO = z.infer<typeof productCreateDTOSchema>;

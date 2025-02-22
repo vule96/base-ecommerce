@@ -1,5 +1,6 @@
 import express, { Router } from 'express';
 
+import { checkPermission } from '~/middlewares/ability.middleware';
 import { auth } from '~/middlewares/auth.middleware';
 import { ValidationSource, validatorMiddleware } from '~/middlewares/validator.middleware';
 import { productController } from '~/modules/product/product.controller';
@@ -14,7 +15,7 @@ export function productRoutes(): Router {
   router.post(
     '/',
     auth,
-    // checkPermission('create', 'Product'),
+    checkPermission('create', 'Product'),
     validatorMiddleware(productCreateDTOSchema),
     productController.create
   );

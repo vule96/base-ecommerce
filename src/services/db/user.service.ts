@@ -5,7 +5,7 @@ import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
 import { ErrConflict, ErrNotFound } from '~/core/error';
 import type { UserRegistrationDTO } from '~/modules/user/user.schema';
-import { Status, UserRole } from '~/shared/interface';
+import { UserRole, UserStatus } from '~/shared/interface';
 import { lowerCase } from '~/utils/string';
 
 class UserService {
@@ -94,7 +94,7 @@ class UserService {
       password: hashPassword,
       salt: salt,
       role: UserRole.USER,
-      status: Status.ACTIVE,
+      status: UserStatus.ACTIVE,
       createdAt: new Date(),
       updatedAt: new Date(),
       avatar: null,

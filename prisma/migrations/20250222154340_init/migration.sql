@@ -1,8 +1,8 @@
 -- CreateEnum
-CREATE TYPE "user_status" AS ENUM ('active', 'inactive');
+CREATE TYPE "user_status" AS ENUM ('active', 'inactive', 'banned', 'pending');
 
 -- CreateEnum
-CREATE TYPE "product_status" AS ENUM ('active', 'inactive');
+CREATE TYPE "product_status" AS ENUM ('draft', 'active', 'inactive', 'archived');
 
 -- CreateEnum
 CREATE TYPE "category_status" AS ENUM ('active', 'inactive');
@@ -37,6 +37,7 @@ CREATE TABLE "token" (
     "is_blacklisted" BOOLEAN NOT NULL DEFAULT false,
     "ip_address" VARCHAR(45),
     "user_agent" VARCHAR(100),
+    "revoked_at" TIMESTAMPTZ,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "user_id" UUID NOT NULL,
@@ -72,6 +73,28 @@ CREATE TABLE "category" (
     CONSTRAINT "category_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "attribute" (
+    "id" UUID NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "attribute_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "product_attribute" (
+    "id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
+    "attribute_id" UUID NOT NULL,
+    "value" VARCHAR(100) NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "product_attribute_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
@@ -79,13 +102,13 @@ CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 CREATE UNIQUE INDEX "user_username_key" ON "user"("username");
 
 -- CreateIndex
-CREATE INDEX "status" ON "user"("status");
+CREATE INDEX "idx_user_status" ON "user"("status");
 
 -- CreateIndex
-CREATE INDEX "role" ON "user"("role");
+CREATE INDEX "idx_user_role" ON "user"("role");
 
 -- CreateIndex
-CREATE INDEX "token_user_id" ON "token"("user_id");
+CREATE INDEX "idx_token_user_id" ON "token"("user_id");
 
 -- CreateIndex
 CREATE INDEX "idx_blacklisted" ON "token"("is_blacklisted");
@@ -97,13 +120,25 @@ CREATE UNIQUE INDEX "product_name_key" ON "product"("name");
 CREATE UNIQUE INDEX "product_slug_key" ON "product"("slug");
 
 -- CreateIndex
+CREATE INDEX "idx_product_status" ON "product"("status");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "category_name_key" ON "category"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "category_slug_key" ON "category"("slug");
 
 -- CreateIndex
-CREATE INDEX "parent_id" ON "category"("parent_id");
+CREATE INDEX "idx_category_parent_id" ON "category"("parent_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "attribute_name_key" ON "attribute"("name");
+
+-- CreateIndex
+CREATE INDEX "idx_product_attribute_product_id" ON "product_attribute"("product_id");
+
+-- CreateIndex
+CREATE INDEX "idx_product_attribute_attribute_id" ON "product_attribute"("attribute_id");
 
 -- AddForeignKey
 ALTER TABLE "token" ADD CONSTRAINT "token_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -113,3 +148,9 @@ ALTER TABLE "product" ADD CONSTRAINT "product_category_id_fkey" FOREIGN KEY ("ca
 
 -- AddForeignKey
 ALTER TABLE "category" ADD CONSTRAINT "category_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_attribute" ADD CONSTRAINT "product_attribute_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_attribute" ADD CONSTRAINT "product_attribute_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "attribute"("id") ON DELETE CASCADE ON UPDATE CASCADE;

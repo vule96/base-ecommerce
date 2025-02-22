@@ -3,9 +3,23 @@ export enum UserRole {
   USER = 'user'
 }
 
-export enum Status {
+export enum CategoryStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive'
+}
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  BANNED = 'banned',
+  PENDING = 'pending'
+}
+
+export enum ProductStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  DRAFT = 'draft',
+  ARCHIVED = 'archived'
 }
 
 export interface TokenPayload {

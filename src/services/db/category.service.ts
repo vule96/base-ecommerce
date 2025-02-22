@@ -4,7 +4,7 @@ import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
 import type { CategoryCondDTO, CategoryCreateDTO, CategoryUpdateDTO } from '~/modules/category/category.schema';
-import { Status } from '~/shared/interface';
+import { CategoryStatus } from '~/shared/interface';
 import type { ToNullProps } from '~/shared/interface/utility';
 import type { Paginated, PagingDTO } from '~/shared/model';
 import { toSlug } from '~/utils/string';
@@ -16,7 +16,7 @@ class CategoryService {
       ...data,
       id: newId,
       slug: toSlug(data.name),
-      status: Status.ACTIVE,
+      status: CategoryStatus.ACTIVE,
       createdAt: new Date(),
       updatedAt: new Date()
     };

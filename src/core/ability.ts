@@ -16,7 +16,7 @@ export const defineAbilityFor = (role: UserRole): MongoAbility => {
       break;
 
     case UserRole.USER:
-      can('create', 'Product');
+      can('read', 'Product');
       break;
   }
 

@@ -78,6 +78,12 @@ model Category {
   @@map("category")
 }
 
+// model ProductAttribute {
+//   id String @id @default(uuid()) @map("id") @db.Uuid
+
+//   @@map("product_attribute")
+// }
+
 enum user_status {
   active
   inactive

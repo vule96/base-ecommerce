@@ -61,7 +61,7 @@ class AuthController {
   public logout = async (req: Request, res: Response) => {
     logger.info(`UserController.logout - request received`);
 
-    await authService.logout(req.currentUser.refreshToken);
+    await authService.logout(req.user.refreshToken);
     removeCookies(res);
 
     new OkResponse({

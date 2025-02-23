@@ -20,7 +20,7 @@ class UserController {
 
     new OkResponse({
       message: 'Get profile successfully',
-      metadata: req.currentUser
+      metadata: req.user
     }).send(res);
   };
 }

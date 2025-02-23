@@ -28,6 +28,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/hpp": "^0.2.6",
     "@types/jsonwebtoken": "^9.0.8",
+    "@types/lodash": "^4.17.15",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.1",
     "@types/passport": "^1.0.17",
@@ -49,6 +50,7 @@
     "typescript-eslint": "^8.23.0"
   },
   "dependencies": {
+    "@casl/ability": "^6.7.3",
     "@prisma/client": "^6.3.1",
     "bcrypt": "^5.1.1",
     "compression": "^1.7.5",

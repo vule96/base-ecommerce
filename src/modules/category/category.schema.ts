@@ -1,14 +1,14 @@
 import z from 'zod';
 
 import { ErrNameAtLeast2Chars, ErrSlugAtLeast2Chars, ErrStatusInvalid } from '~/modules/category/category.error';
-import { Status } from '~/shared/interface';
+import { CategoryStatus } from '~/shared/interface';
 
 export const categorySchema = z.object({
   id: z.string().uuid(),
   parentId: z.string().uuid().optional(),
   name: z.string().min(2, ErrNameAtLeast2Chars.message),
   slug: z.string().min(2, ErrSlugAtLeast2Chars.message),
-  status: z.nativeEnum(Status, ErrStatusInvalid),
+  status: z.nativeEnum(CategoryStatus, ErrStatusInvalid),
   createdAt: z.date(),
   updatedAt: z.date()
 });

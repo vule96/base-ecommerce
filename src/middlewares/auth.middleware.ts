@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from 'express';
-import { TokenExpiredError } from 'jsonwebtoken';
 
 import passport from '~/components/passport';
 import { ErrUnauthorized } from '~/core/error';
@@ -8,12 +7,12 @@ const verifyCallback =
   (req: Request, next: NextFunction): passport.AuthenticateCallback =>
   (err: unknown, user: Express.User | false | null | undefined, info: unknown) => {
     if (err || info || !user) {
-      if (info instanceof TokenExpiredError) {
-        return next(ErrUnauthorized.withLog('Token expired'));
-      }
+      // if (info instanceof TokenExpiredError) {
+      //   return next(ErrUnauthorized.withLog('Token expired'));
+      // }
       return next(ErrUnauthorized.withLog('Please authenticate'));
     }
-    req.currentUser = user as UserPayload;
+    req.user = user as UserPayload;
     return next();
   };
 

@@ -1,6 +1,6 @@
 declare namespace Express {
   export interface Request {
-    currentUser: UserPayload;
+    user: UserPayload;
     paging: PagingDTO;
   }
 }

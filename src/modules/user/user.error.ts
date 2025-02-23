@@ -5,3 +5,4 @@ export const ErrStatusInvalid = new Error('Status is invalid');
 export const ErrEmailInvalid = new Error('Email is invalid');
 export const ErrUsernameInvalid = new Error('Username must contain only letters, numbers and underscore (_)');
 export const ErrPasswordAtLeast6Chars = new Error('Password must be at least 6 characters');
+export const ErrPhoneInvalid = new Error('Phone is invalid');

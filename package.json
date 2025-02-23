@@ -2,6 +2,7 @@
   "name": "base-ecommerce",
   "version": "1.0.0",
   "main": "build/src/app.js",
+  "repository": "https://github.com/vule96/base-ecommerce-node-backend",
   "scripts": {
     "dev": "npx nodemon",
     "build": "rimraf ./build && tsc && tsc-alias && ts-node tools/copyAssets.ts",

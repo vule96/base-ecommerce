@@ -30,7 +30,7 @@ export const userSchema = z.object({
   updatedAt: z.date()
 });
 
-export type User = z.infer<typeof userSchema>;
+export type UserDTO = z.infer<typeof userSchema>;
 
 export const userRegistrationDTOSchema = userSchema
   .pick({

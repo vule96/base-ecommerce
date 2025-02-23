@@ -12,7 +12,7 @@ export const tokenSchema = z.object({
   updatedAt: z.date()
 });
 
-export type Token = z.infer<typeof tokenSchema>;
+export type TokenDTO = z.infer<typeof tokenSchema>;
 
 export const tokenCreateDTOSchema = tokenSchema
   .pick({

@@ -22,7 +22,7 @@ export const productSchema = z.object({
   updatedAt: z.date()
 });
 
-export type Product = z.infer<typeof productSchema>;
+export type ProductDTO = z.infer<typeof productSchema>;
 
 export const productCreateDTOSchema = productSchema
   .pick({

@@ -47,6 +47,7 @@ class AuthService {
       userId: user.id,
       ipAddress,
       userAgent,
+      isBlacklisted: false,
       expiresAt: new Date(refreshTokenExpiresIn * 1000)
     };
 
@@ -114,6 +115,7 @@ class AuthService {
       userId: user.id,
       ipAddress,
       userAgent,
+      isBlacklisted: false,
       expiresAt: new Date(refreshTokenExpiresIn * 1000)
     };
 

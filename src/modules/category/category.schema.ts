@@ -13,7 +13,7 @@ export const categorySchema = z.object({
   updatedAt: z.date()
 });
 
-export type Category = z.infer<typeof categorySchema>;
+export type CategoryDTO = z.infer<typeof categorySchema>;
 
 export const categoryCreateDTOSchema = categorySchema
   .pick({

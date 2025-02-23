@@ -9,7 +9,7 @@ export const attributeSchema = z.object({
   updatedAt: z.date()
 });
 
-export type Attribute = z.infer<typeof attributeSchema>;
+export type AttributeDTO = z.infer<typeof attributeSchema>;
 
 export const attributeCreateDTOSchema = attributeSchema
   .pick({

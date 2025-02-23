@@ -1,18 +1,18 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, type Token } from '@prisma/client';
 import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
-import type { Token, TokenCondDTO, TokenCreateDTO } from '~/modules/token/token.schema';
+import type { TokenCondDTO, TokenCreateDTO } from '~/modules/token/token.schema';
 import type { ToNullProps } from '~/shared/interface/utility';
 
 class TokenService {
-  public create = async (data: TokenCreateDTO): Promise<ToNullProps<Token> | undefined> => {
+  public create = async (data: ToNullProps<TokenCreateDTO>): Promise<Token> => {
     const newId = v7();
     const newToken: Token = {
       ...data,
       id: newId,
-      isBlacklisted: false,
+      isBlacklisted: data.isBlacklisted || false,
       createdAt: new Date(),
       updatedAt: new Date()
     };

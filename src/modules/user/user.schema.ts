@@ -5,6 +5,7 @@ import {
   ErrFirstNameAtLeast2Chars,
   ErrLastNameAtLeast2Chars,
   ErrPasswordAtLeast6Chars,
+  ErrPhoneInvalid,
   ErrRoleInvalid,
   ErrStatusInvalid
 } from '~/modules/user/user.error';
@@ -20,6 +21,7 @@ export const userSchema = z.object({
     .min(3, 'Username must not be less than 3 characters')
     .max(25, 'Username must not be greater than 25 characters'),
   // .regex(/^[a-zA-Z0-9_]+$/, ErrUsernameInvalid.message),
+  phone: z.string().regex(/^\+?[0-9]{6,14}$/, ErrPhoneInvalid.message),
   password: z.string().min(6, ErrPasswordAtLeast6Chars.message),
   salt: z.string().min(8),
   role: z.nativeEnum(UserRole, ErrRoleInvalid),
@@ -36,6 +38,7 @@ export const userRegistrationDTOSchema = userSchema
     lastName: true,
     email: true,
     username: true,
+    phone: true,
     password: true
   })
   .required();

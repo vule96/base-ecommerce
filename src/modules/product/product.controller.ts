@@ -11,7 +11,7 @@ class ProductController {
 
     new OkResponse({
       message: 'Create product successfully',
-      metadata: product || {}
+      metadata: product
     }).send(res);
   };
 
@@ -32,7 +32,7 @@ class ProductController {
 
     new OkResponse({
       message: 'Find product by id successfully',
-      metadata: product || {}
+      metadata: product
     }).send(res);
   };
 

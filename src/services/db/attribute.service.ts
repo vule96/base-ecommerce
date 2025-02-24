@@ -4,6 +4,7 @@ import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
 import type { AttributeCreateDTO, AttributeUpdateDTO } from '~/modules/attribute/attribute.schema';
+import { Paginated, PagingDTO } from '~/shared/model';
 
 class AttributeService {
   public create = async (data: AttributeCreateDTO): Promise<Attribute> => {
@@ -45,6 +46,26 @@ class AttributeService {
       data
     });
     return updatedAttribute;
+  };
+
+  public list = async (paging: PagingDTO): Promise<Paginated<Attribute>> => {
+    const count = await prisma.attribute.count();
+
+    const skip = (paging.page - 1) * paging.limit;
+    const result = await prisma.attribute.findMany({
+      skip,
+      take: paging.limit,
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return {
+      data: result,
+      paging: {
+        page: paging.page,
+        limit: paging.limit,
+        total: count
+      }
+    };
   };
 }
 

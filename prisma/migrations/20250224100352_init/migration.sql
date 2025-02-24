@@ -106,17 +106,6 @@ CREATE TABLE "product_attribute" (
     CONSTRAINT "product_attribute_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "product_attribute_value" (
-    "id" UUID NOT NULL,
-    "product_attribute_id" UUID NOT NULL,
-    "attribute_value_id" UUID NOT NULL,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "product_attribute_value_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
@@ -142,6 +131,9 @@ CREATE UNIQUE INDEX "product_name_key" ON "product"("name");
 CREATE UNIQUE INDEX "product_slug_key" ON "product"("slug");
 
 -- CreateIndex
+CREATE INDEX "idx_product_category_id" ON "product"("category_id");
+
+-- CreateIndex
 CREATE INDEX "idx_product_status" ON "product"("status");
 
 -- CreateIndex
@@ -162,12 +154,6 @@ CREATE INDEX "idx_attribute_value_attribute_id" ON "attribute_value"("attribute_
 -- CreateIndex
 CREATE INDEX "idx_product_attribute_product_attribute" ON "product_attribute"("product_id", "attribute_id");
 
--- CreateIndex
-CREATE INDEX "idx_product_attribute_value_product_attribute_id" ON "product_attribute_value"("product_attribute_id");
-
--- CreateIndex
-CREATE INDEX "idx_product_attribute_value_attribute_value_id" ON "product_attribute_value"("attribute_value_id");
-
 -- AddForeignKey
 ALTER TABLE "token" ADD CONSTRAINT "token_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -185,9 +171,3 @@ ALTER TABLE "product_attribute" ADD CONSTRAINT "product_attribute_product_id_fke
 
 -- AddForeignKey
 ALTER TABLE "product_attribute" ADD CONSTRAINT "product_attribute_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "attribute"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "product_attribute_value" ADD CONSTRAINT "product_attribute_value_product_attribute_id_fkey" FOREIGN KEY ("product_attribute_id") REFERENCES "product_attribute"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "product_attribute_value" ADD CONSTRAINT "product_attribute_value_attribute_value_id_fkey" FOREIGN KEY ("attribute_value_id") REFERENCES "attribute_value"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -3,7 +3,7 @@ import { AbilityBuilder, createMongoAbility, type MongoAbility } from '@casl/abi
 import { UserRole } from '~/shared/interface';
 
 export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
-export type Subjects = 'User' | 'Category' | 'Product' | 'all';
+export type Subjects = 'User' | 'Category' | 'Product' | 'Variant' | 'VariantValue' | 'all';
 
 type AppAbility = MongoAbility<[Actions, Subjects]>;
 

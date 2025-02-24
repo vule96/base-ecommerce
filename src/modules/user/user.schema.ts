@@ -41,7 +41,9 @@ export const userRegistrationDTOSchema = userSchema
     phone: true,
     password: true
   })
-  .required();
+  .extend({
+    role: z.nativeEnum(UserRole, ErrRoleInvalid).optional()
+  });
 
 export const userLoginDTOSchema = userSchema
   .pick({

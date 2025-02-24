@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 
 import logger from '~/core/logger';
-import { OkResponse } from '~/core/success';
+import { OkResponse, PagingResponse } from '~/core/success';
 import { attributeService } from '~/services/db/attribute.service';
 
 class AttributeController {
@@ -11,7 +11,7 @@ class AttributeController {
 
     new OkResponse({
       message: 'Create attribute successfully',
-      metadata: attribute || {}
+      metadata: attribute
     }).send(res);
   };
 
@@ -32,7 +32,19 @@ class AttributeController {
 
     new OkResponse({
       message: 'Find attribute by id successfully',
-      metadata: attribute || {}
+      metadata: attribute
+    }).send(res);
+  };
+
+  public list = async (req: Request, res: Response) => {
+    logger.info(`AttributeController.list - request received`);
+
+    const attributes = await attributeService.list(req.paging);
+
+    new PagingResponse({
+      message: 'List attributes successfully',
+      metadata: attributes.data,
+      paging: attributes.paging
     }).send(res);
   };
 }

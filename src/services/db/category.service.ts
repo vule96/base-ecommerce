@@ -10,7 +10,7 @@ import type { Paginated, PagingDTO } from '~/shared/model';
 import { toSlug } from '~/utils/string';
 
 class CategoryService {
-  public create = async (data: ToNullProps<CategoryCreateDTO>): Promise<Category | undefined> => {
+  public create = async (data: ToNullProps<CategoryCreateDTO>): Promise<Category> => {
     const newId = v7();
     const newCategory: Category = {
       ...data,

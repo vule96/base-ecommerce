@@ -1,6 +1,7 @@
 import { Application } from 'express';
 
 import { attributeRoutes } from '~/modules/attribute/attribute.route';
+import { attributeValueRoutes } from '~/modules/attribute-value/attribute-value.route';
 import { authRoutes } from '~/modules/auth/auth.route';
 import { categoryRoutes } from '~/modules/category/category.route';
 import { healthRoutes } from '~/modules/health/route/health.route';
@@ -13,6 +14,7 @@ const appRoutes = (app: Application): void => {
   app.use('', healthRoutes());
   app.use(BASE_PATH + '/auth', authRoutes());
   app.use(BASE_PATH + '/attribute', attributeRoutes());
+  app.use(BASE_PATH + '/attribute-value', attributeValueRoutes());
   app.use(BASE_PATH + '/category', categoryRoutes());
   app.use(BASE_PATH + '/product', productRoutes());
   app.use(BASE_PATH + '/user', userRoutes());

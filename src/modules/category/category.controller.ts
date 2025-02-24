@@ -11,7 +11,7 @@ class CategoryController {
 
     new OkResponse({
       message: 'Create category successfully',
-      metadata: category || {}
+      metadata: category
     }).send(res);
   };
 
@@ -32,7 +32,7 @@ class CategoryController {
 
     new OkResponse({
       message: 'Find category by id successfully',
-      metadata: category || {}
+      metadata: category
     }).send(res);
   };
 

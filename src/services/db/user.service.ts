@@ -93,7 +93,7 @@ class UserService {
       id: newId,
       password: hashPassword,
       salt: salt,
-      role: UserRole.USER,
+      role: data.role || UserRole.USER,
       status: UserStatus.ACTIVE,
       createdAt: new Date(),
       updatedAt: new Date(),

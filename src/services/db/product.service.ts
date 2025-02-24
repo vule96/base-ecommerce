@@ -3,7 +3,7 @@ import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
-import type { ProductCreateDTO, ProductUpdateDTO } from '~/modules/product/product.schema';
+import type { ProductCreateDTO, ProductDTO, ProductUpdateDTO } from '~/modules/product/product.schema';
 import { ProductStatus } from '~/shared/interface';
 import type { ToNullProps } from '~/shared/interface/utility';
 import type { Paginated, PagingDTO } from '~/shared/model';
@@ -12,7 +12,7 @@ import { toSlug } from '~/utils/string';
 class ProductService {
   public create = async (data: ToNullProps<ProductCreateDTO>): Promise<Product> => {
     const newId = v7();
-    const newProduct: Product = {
+    const newProduct: ProductDTO = {
       ...data,
       id: newId,
       slug: toSlug(data.name),
@@ -28,33 +28,28 @@ class ProductService {
     });
   };
 
-  public findById = async <Key extends keyof Product>(
-    id: Product['id'],
-    keys: Key[] = [
-      'id',
-      'name',
-      'slug',
-      'description',
-      'shortDescription',
-      'categoryId',
-      'status',
-      'createdAt',
-      'updatedAt'
-    ] as Key[]
-  ) => {
-    const product = (await prisma.product.findUnique({
+  public findById = async (id: Product['id']) => {
+    const product = await prisma.product.findUnique({
       where: { id },
-      select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    })) as Pick<Product, Key> | null;
+      include: {
+        category: true,
+        productAttributeValues: {
+          include: {
+            attribute: true
+          }
+        }
+      }
+    });
 
     if (!product) {
       throw ErrNotFound.withLog(`The product with ${id} not found`);
     }
-    return product;
+
+    return this.formatProductAttributeValues(product);
   };
 
   public update = async (id: Product['id'], data: ProductUpdateDTO) => {
-    await this.findById(id, ['id']);
+    await this.findById(id);
 
     const preData = {
       ...data,
@@ -82,6 +77,31 @@ class ProductService {
         limit: paging.limit,
         total: count
       }
+    };
+  };
+
+  private formatProductAttributeValues = (
+    product: Product & {
+      productAttributeValues: {
+        id: string;
+        productId: string;
+        attributeId: string;
+        value: string;
+        attribute: {
+          id: string;
+          name: string;
+        };
+      }[];
+    }
+  ) => {
+    const { productAttributeValues, ...restProduct } = product;
+
+    return {
+      ...restProduct,
+      attributes: productAttributeValues.map((item: any) => ({
+        name: item.attribute.name,
+        value: item.value
+      }))
     };
   };
 }

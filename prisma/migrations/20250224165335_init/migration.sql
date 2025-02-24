@@ -85,15 +85,25 @@ CREATE TABLE "attribute" (
 );
 
 -- CreateTable
-CREATE TABLE "product_attribute_value" (
+CREATE TABLE "attribute_value" (
     "id" UUID NOT NULL,
     "value" VARCHAR(100) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "product_id" UUID NOT NULL,
     "attribute_id" UUID NOT NULL,
 
-    CONSTRAINT "product_attribute_value_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "attribute_value_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "product_attribute" (
+    "id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "product_id" UUID NOT NULL,
+    "attribute_value_id" UUID NOT NULL,
+
+    CONSTRAINT "product_attribute_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -121,10 +131,13 @@ CREATE UNIQUE INDEX "product_name_key" ON "product"("name");
 CREATE UNIQUE INDEX "product_slug_key" ON "product"("slug");
 
 -- CreateIndex
-CREATE INDEX "idx_product_category_id" ON "product"("category_id");
+CREATE INDEX "idx_product_slug" ON "product"("slug");
 
 -- CreateIndex
 CREATE INDEX "idx_product_status" ON "product"("status");
+
+-- CreateIndex
+CREATE INDEX "idx_product_category_id" ON "product"("category_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "category_name_key" ON "category"("name");
@@ -133,13 +146,22 @@ CREATE UNIQUE INDEX "category_name_key" ON "category"("name");
 CREATE UNIQUE INDEX "category_slug_key" ON "category"("slug");
 
 -- CreateIndex
+CREATE INDEX "idx_category_slug" ON "category"("slug");
+
+-- CreateIndex
+CREATE INDEX "idx_category_status" ON "category"("status");
+
+-- CreateIndex
 CREATE INDEX "idx_category_parent_id" ON "category"("parent_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "attribute_name_key" ON "attribute"("name");
 
 -- CreateIndex
-CREATE INDEX "idx_product_attribute_value" ON "product_attribute_value"("product_id", "attribute_id");
+CREATE INDEX "idx_attribute_value_attribute_id" ON "attribute_value"("attribute_id");
+
+-- CreateIndex
+CREATE INDEX "idx_product_attribute_value" ON "product_attribute"("product_id", "attribute_value_id");
 
 -- AddForeignKey
 ALTER TABLE "token" ADD CONSTRAINT "token_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -151,7 +173,10 @@ ALTER TABLE "product" ADD CONSTRAINT "product_category_id_fkey" FOREIGN KEY ("ca
 ALTER TABLE "category" ADD CONSTRAINT "category_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "product_attribute_value" ADD CONSTRAINT "product_attribute_value_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "attribute_value" ADD CONSTRAINT "attribute_value_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "attribute"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "product_attribute_value" ADD CONSTRAINT "product_attribute_value_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "attribute"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "product_attribute" ADD CONSTRAINT "product_attribute_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_attribute" ADD CONSTRAINT "product_attribute_attribute_value_id_fkey" FOREIGN KEY ("attribute_value_id") REFERENCES "attribute_value"("id") ON DELETE CASCADE ON UPDATE CASCADE;

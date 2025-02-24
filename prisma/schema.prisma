@@ -47,21 +47,22 @@ model Token {
 }
 
 model Product {
-  id                     String                  @id @default(uuid()) @map("id") @db.Uuid
-  name                   String                  @unique @map("name") @db.VarChar(100)
-  slug                   String                  @unique @map("slug") @db.VarChar(100)
-  description            String                  @map("description") @db.Text
-  price                  Decimal                 @map("price") @db.Decimal(10, 2)
-  stock                  Int                     @default(0) @map("stock") @db.Integer
-  status                 product_status?         @default(active) @map("status")
-  createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt              DateTime                @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  categoryId             String?                 @map("category_id") @db.Uuid
-  category               Category?               @relation(fields: [categoryId], references: [id])
-  productAttributeValues ProductAttributeValue[]
+  id                String             @id @default(uuid()) @map("id") @db.Uuid
+  name              String             @unique @map("name") @db.VarChar(100)
+  slug              String             @unique @map("slug") @db.VarChar(100)
+  description       String             @map("description") @db.Text
+  price             Decimal            @map("price") @db.Decimal(10, 2)
+  stock             Int                @default(0) @map("stock") @db.Integer
+  status            product_status?    @default(active) @map("status")
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  categoryId        String?            @map("category_id") @db.Uuid
+  category          Category?          @relation(fields: [categoryId], references: [id])
+  productAttributes ProductAttribute[]
 
-  @@index([categoryId], map: "idx_product_category_id")
+  @@index([slug], map: "idx_product_slug")
   @@index([status], map: "idx_product_status")
+  @@index([categoryId], map: "idx_product_category_id")
   @@map("product")
 }
 
@@ -77,32 +78,46 @@ model Category {
   children  Category[]       @relation("CategoryHierarchy")
   products  Product[]
 
+  @@index([slug], map: "idx_category_slug")
+  @@index([status], map: "idx_category_status")
   @@index([parentId], map: "idx_category_parent_id")
   @@map("category")
 }
 
 model Attribute {
-  id                     String                  @id @default(uuid()) @map("id") @db.Uuid
-  name                   String                  @unique @map("name") @db.VarChar(100)
-  createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt              DateTime                @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  productAttributeValues ProductAttributeValue[]
+  id              String           @id @default(uuid()) @map("id") @db.Uuid
+  name            String           @unique @map("name") @db.VarChar(100)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  attributeValues AttributeValue[]
 
   @@map("attribute")
 }
 
-model ProductAttributeValue {
-  id          String    @id @default(uuid()) @map("id") @db.Uuid
-  value       String    @db.VarChar(100)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  productId   String    @map("product_id") @db.Uuid
-  attributeId String    @map("attribute_id") @db.Uuid
-  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+model AttributeValue {
+  id                String             @id @default(uuid()) @map("id") @db.Uuid
+  value             String             @db.VarChar(100)
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  attributeId       String             @map("attribute_id") @db.Uuid
+  attribute         Attribute          @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  productAttributes ProductAttribute[]
 
-  @@index([productId, attributeId], map: "idx_product_attribute_value")
-  @@map("product_attribute_value")
+  @@index([attributeId], map: "idx_attribute_value_attribute_id")
+  @@map("attribute_value")
+}
+
+model ProductAttribute {
+  id               String         @id @default(uuid()) @map("id") @db.Uuid
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  productId        String         @map("product_id") @db.Uuid
+  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeValueId String         @map("attribute_value_id") @db.Uuid
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  @@index([productId, attributeValueId], map: "idx_product_attribute_value")
+  @@map("product_attribute")
 }
 
 enum user_status {

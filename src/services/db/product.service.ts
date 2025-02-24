@@ -33,9 +33,13 @@ class ProductService {
       where: { id },
       include: {
         category: true,
-        productAttributeValues: {
+        productAttributes: {
           include: {
-            attribute: true
+            attributeValue: {
+              include: {
+                attribute: true
+              }
+            }
           }
         }
       }
@@ -46,6 +50,7 @@ class ProductService {
     }
 
     return this.formatProductAttributeValues(product);
+    // return product;
   };
 
   public update = async (id: Product['id'], data: ProductUpdateDTO) => {
@@ -81,26 +86,15 @@ class ProductService {
   };
 
   private formatProductAttributeValues = (
-    product: Product & {
-      productAttributeValues: {
-        id: string;
-        productId: string;
-        attributeId: string;
-        value: string;
-        attribute: {
-          id: string;
-          name: string;
-        };
-      }[];
-    }
+    product: Product & { productAttributes: { attributeValue: { attribute: { name: string }; value: string } }[] }
   ) => {
-    const { productAttributeValues, ...restProduct } = product;
+    const { productAttributes, ...restProduct } = product;
 
     return {
       ...restProduct,
-      attributes: productAttributeValues.map((item: any) => ({
-        name: item.attribute.name,
-        value: item.value
+      attributes: productAttributes.map((item) => ({
+        name: item.attributeValue.attribute.name,
+        value: item.attributeValue.value
       }))
     };
   };

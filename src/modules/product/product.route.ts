@@ -21,6 +21,8 @@ export function productRoutes(): Router {
   );
   router.patch(
     '/:id',
+    auth,
+    checkPermission('update', 'Product'),
     validatorMiddleware(productIdDTOSchema, ValidationSource.PARAM),
     validatorMiddleware(productUpdateDTOSchema),
     productController.update

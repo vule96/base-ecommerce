@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { type Actions, defineAbilityFor, type Subjects } from '~/core/ability';
+import { type Actions, AppSubjects, defineAbilityFor } from '~/core/ability';
 import { ErrForbidden, ErrUnauthorized } from '~/core/error';
 import { UserRole } from '~/shared/interface';
 
-export const checkPermission = (action: Actions, resourceType: Subjects) => {
+export const checkPermission = (action: Actions, resourceType: AppSubjects) => {
   return async (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user || !req.user.role) {
       return next(ErrUnauthorized.withLog('Please authenticate'));

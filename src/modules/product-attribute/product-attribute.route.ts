@@ -23,14 +23,14 @@ export function productAttributeRoutes(): Router {
   router.post(
     '/',
     auth,
-    checkPermission('create', 'ProductVariant'),
+    checkPermission('create', 'ProductAttribute'),
     validatorMiddleware(productAttributeCreateDTOSchema),
     productAttributeController.create
   );
   router.patch(
     '/:id',
     auth,
-    checkPermission('create', 'ProductVariant'),
+    checkPermission('update', 'ProductAttribute'),
     validatorMiddleware(productAttributeIdDTOSchema, ValidationSource.PARAM),
     validatorMiddleware(productAttributeUpdateDTOSchema),
     productAttributeController.update

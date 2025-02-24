@@ -19,14 +19,14 @@ export function attributeRoutes(): Router {
   router.post(
     '/',
     auth,
-    checkPermission('create', 'Variant'),
+    checkPermission('create', 'Attribute'),
     validatorMiddleware(attributeCreateDTOSchema),
     attributeController.create
   );
   router.patch(
     '/:id',
     auth,
-    checkPermission('create', 'Variant'),
+    checkPermission('update', 'Attribute'),
     validatorMiddleware(attributeIdDTOSchema, ValidationSource.PARAM),
     validatorMiddleware(attributeUpdateDTOSchema),
     attributeController.update

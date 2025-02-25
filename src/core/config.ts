@@ -8,7 +8,7 @@ export const envSchema = z.object({
   PORT: z
     .string()
     .transform((val) => parseInt(val, 10))
-    .default('4000'), // parseInt trong schema
+    .default('4000'),
   APP_NAME: z.string(),
   LOG_FOLDER_PATH: z.string(),
   LOG_FILE_MAX_SIZE: z.string(),

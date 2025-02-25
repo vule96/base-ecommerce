@@ -76,17 +76,14 @@ class UserService {
   };
 
   public create = async (data: UserRegistrationDTO): Promise<User> => {
-    // 1. Check if email exists
     const existedUser = await this.getUserByEmail(data.email);
     if (existedUser) {
       throw ErrConflict.withLog('Email is already registered');
     }
 
-    // 2. Generate salt and hash password
     const salt = await bcrypt.genSalt(8);
     const hashPassword = await bcrypt.hash(`${data.password}.${salt}`, 10);
 
-    // 3. Create new user
     const newId = v7();
     const newUser: User = {
       ...data,

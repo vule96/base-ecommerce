@@ -24,13 +24,12 @@ export class JwtPayload {
     this.iss = issuer;
     this.aud = audience;
     this.sub = subject;
-    this.iat = Math.floor(Date.now() / 1000); // thời gian tạo token
-    this.exp = this.iat + validity; // thời gian hết hạn token
+    this.iat = Math.floor(Date.now() / 1000);
+    this.exp = this.iat + validity;
     this.prm = param;
   }
 }
 
-// Hàm đọc khóa công khai
 async function readPublicKey(): Promise<string> {
   try {
     return await promisify(readFile)(path.join(__dirname, '../../keys/public.pem'), 'utf8');
@@ -39,7 +38,6 @@ async function readPublicKey(): Promise<string> {
   }
 }
 
-// Hàm đọc khóa riêng tư
 async function readPrivateKey(): Promise<string> {
   try {
     return await promisify(readFile)(path.join(__dirname, '../../keys/private.pem'), 'utf8');
@@ -48,7 +46,6 @@ async function readPrivateKey(): Promise<string> {
   }
 }
 
-// Hàm mã hóa (sign) JWT với payload
 async function encode(payload: JwtPayload): Promise<string> {
   const privateKey = await readPrivateKey();
   if (!privateKey) throw new Error('Token generation failure');
@@ -60,9 +57,6 @@ async function encode(payload: JwtPayload): Promise<string> {
   });
 }
 
-/**
- * Phương thức này kiểm tra token và trả về dữ liệu giải mã khi token hợp lệ
- */
 async function validate(token: string): Promise<JwtPayload> {
   const publicKey = await readPublicKey();
   return new Promise((resolve, reject) => {
@@ -76,9 +70,6 @@ async function validate(token: string): Promise<JwtPayload> {
   });
 }
 
-/**
- * Trả về payload đã giải mã nếu chữ ký hợp lệ, ngay cả khi token đã hết hạn
- */
 async function decode(token: string): Promise<JwtPayload> {
   const publicKey = await readPublicKey();
   return new Promise((resolve, reject) => {

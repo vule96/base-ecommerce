@@ -12,7 +12,7 @@ const infoColor = chalk.white;
 const httpColor = chalk.magenta;
 
 const logFolderPath = env.LOG_FOLDER_PATH;
-const maxLogSize = parseInt(env.LOG_FILE_MAX_SIZE, 10); // 10MB
+const maxLogSize = parseInt(env.LOG_FILE_MAX_SIZE, 10);
 const appName = env.APP_NAME;
 
 if (!logFolderPath || !appName) {
@@ -96,7 +96,6 @@ const loggerConfig = createLogger({
       format: fileFormat
     }),
     new transports.Console({
-      // Log exceptions to console for debugging
       format: consoleFormat,
       handleExceptions: true
     })

@@ -84,7 +84,6 @@ function securityMiddleware(app: Application): void {
     })
   );
 
-  // jwt authentication
   app.use(passport.initialize());
 }
 
@@ -109,13 +108,12 @@ const startServer = async (app: Application): Promise<void> => {
     });
   } catch (error) {
     logger.error(`An error occurred while starting server: ${error}`);
-    process.exit(1); // Ensure application exits if server fails to start
+    process.exit(1);
   }
 };
 
 const closeResources = async (): Promise<void> => {
   try {
-    // Close server
     if (server) {
       await new Promise<void>((resolve, reject) => {
         server.close((err) => {
@@ -130,14 +128,12 @@ const closeResources = async (): Promise<void> => {
       });
     }
 
-    // Close Redis connection
     try {
       await RedisClient.close();
     } catch (error) {
       logger.error(`Error during Redis disconnect: ${(error as Error).message}`);
     }
 
-    // Close Prisma connection
     try {
       await disconnectPrisma();
     } catch (error) {
@@ -164,11 +160,9 @@ const unexpectedErrorHandler = (error: unknown) => {
   closeResources().finally(() => process.exit(1));
 };
 
-// Global error handling for uncaught exceptions and unhandled promise rejections
 process.on('uncaughtException', unexpectedErrorHandler);
 process.on('unhandledRejection', unexpectedErrorHandler);
 
-// Graceful shutdown for SIGINT and SIGTERM
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 

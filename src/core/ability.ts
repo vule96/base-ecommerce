@@ -1,6 +1,6 @@
 import { AbilityBuilder, type MongoAbility, PureAbility } from '@casl/ability';
 import { createPrismaAbility, PrismaQuery, Subjects } from '@casl/prisma';
-import { Attribute, AttributeValue, Category, Product, ProductAttribute, User } from '@prisma/client';
+import { Attribute, AttributeValue, Category, Product, ProductAttribute, User, Variant } from '@prisma/client';
 
 import { UserRole } from '~/shared/interface';
 
@@ -13,6 +13,7 @@ export type AppSubjects =
       Attribute: Attribute;
       AttributeValue: AttributeValue;
       ProductAttribute: ProductAttribute;
+      Variant: Variant;
     }>
   | 'all';
 

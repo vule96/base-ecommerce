@@ -33,8 +33,6 @@ export default [
         }
       ],
       'no-useless-catch': 'off',
-
-      // Thêm các rule của eslint-plugin-simple-import-sort
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error'
     },

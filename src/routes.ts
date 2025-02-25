@@ -8,6 +8,7 @@ import { healthRoutes } from '~/modules/health/route/health.route';
 import { productRoutes } from '~/modules/product/product.route';
 import { productAttributeRoutes } from '~/modules/product-attribute/product-attribute.route';
 import { userRoutes } from '~/modules/user/user.route';
+import { variantRoutes } from '~/modules/variant/variant.route';
 
 const BASE_PATH = '/api/v1';
 
@@ -17,6 +18,7 @@ const appRoutes = (app: Application): void => {
   app.use(BASE_PATH + '/attribute', attributeRoutes());
   app.use(BASE_PATH + '/attribute-value', attributeValueRoutes());
   app.use(BASE_PATH + '/product-attribute', productAttributeRoutes());
+  app.use(BASE_PATH + '/variant', variantRoutes());
   app.use(BASE_PATH + '/category', categoryRoutes());
   app.use(BASE_PATH + '/product', productRoutes());
   app.use(BASE_PATH + '/user', userRoutes());

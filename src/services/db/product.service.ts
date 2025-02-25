@@ -50,7 +50,6 @@ class ProductService {
     }
 
     return this.formatProductAttributeValues(product);
-    // return product;
   };
 
   public update = async (id: Product['id'], data: ProductUpdateDTO) => {

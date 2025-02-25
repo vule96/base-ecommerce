@@ -14,7 +14,6 @@ import { userService } from '~/services/db/user.service';
 
 class AuthService {
   public login = async (usernameOrEmail: string, password: string, ipAddress: string, userAgent: string) => {
-    // 1. Find user with username or email
     const user = await userService.getUserByUsernameOrEmail(usernameOrEmail);
 
     if (!user) {
@@ -23,7 +22,6 @@ class AuthService {
 
     const { password: userPass, salt, ...userData } = user;
 
-    // 2. Check password
     const isMatch = await bcrypt.compare(`${password}.${salt}`, userPass);
     if (!isMatch) {
       throw AppError.from(ErrInvalidUsernameAndPassword, StatusCodes.BAD_REQUEST).withLog('Password is incorrect');

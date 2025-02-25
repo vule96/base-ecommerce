@@ -7,24 +7,16 @@ export class RedisClient {
   private static instance: RedisClient | null = null;
   public redisClient: RedisClientType | null = null;
 
-  /**
-   * Constructor (private để thực hiện Singleton pattern).
-   */
   private constructor() {
     this.redisClient = createClient({ url: `${env.REDIS_URL}` });
   }
 
-  /**
-   * Khởi tạo RedisClient (Singleton pattern).
-   * @returns {Promise<void>}
-   */
   public static async init(): Promise<void> {
     if (!this.instance) {
       const redisClient = new RedisClient();
       try {
         await redisClient._connect();
         RedisClient.instance = redisClient;
-        // logger.success('Redis client initialized');
       } catch (error) {
         logger.error(`Failed to initialize Redis: ${error}`);
         throw error;
@@ -34,11 +26,6 @@ export class RedisClient {
     }
   }
 
-  /**
-   * Lấy instance của RedisClient (Singleton pattern).
-   * @returns {RedisClient}
-   * @throws {Error} Nếu RedisClient chưa được khởi tạo.
-   */
   public static getInstance(): RedisClient {
     if (!RedisClient.instance) {
       throw new Error('RedisClient instance not initialized');
@@ -46,11 +33,6 @@ export class RedisClient {
     return RedisClient.instance;
   }
 
-  /**
-   * Kết nối đến Redis server.
-   * @returns {Promise<void>}
-   * @private
-   */
   private async _connect(): Promise<void> {
     if (!this.redisClient) {
       throw new Error('Redis client not created');
@@ -66,10 +48,6 @@ export class RedisClient {
     }
   }
 
-  /**
-   * Ngắt kết nối khỏi Redis server.
-   * @returns {Promise<void>}
-   */
   public async disconnect(): Promise<void> {
     if (this.redisClient) {
       try {
@@ -85,10 +63,6 @@ export class RedisClient {
     }
   }
 
-  /**
-   * Đóng kết nối Redis (được gọi khi ứng dụng tắt).
-   * @returns {Promise<void>}
-   */
   public static async close(): Promise<void> {
     if (RedisClient.instance) {
       try {

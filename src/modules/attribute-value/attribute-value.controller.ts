@@ -42,7 +42,7 @@ class AttributeValueController {
     const attributes = await attributeValueService.list(req.paging);
 
     new PagingResponse({
-      message: 'List attribute values successfully',
+      message: 'List attributes values successfully',
       metadata: attributes.data,
       paging: attributes.paging
     }).send(res);

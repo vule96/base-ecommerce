@@ -7,6 +7,7 @@ import {
   Product,
   ProductAttribute,
   ProductVariant,
+  ProductVariantOption,
   User,
   Variant,
   VariantOption
@@ -26,6 +27,7 @@ export type AppSubjects =
       Variant: Variant;
       VariantOption: VariantOption;
       ProductVariant: ProductVariant;
+      ProductVariantOption: ProductVariantOption;
     }>
   | 'all';
 

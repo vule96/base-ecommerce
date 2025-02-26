@@ -1,13 +1,14 @@
 import { Application } from 'express';
 
-import { attributeValueRoutes } from '~//modules/attribute-value/attribute-value.route';
 import { attributeRoutes } from '~/modules/attribute/attribute.route';
+import { attributeValueRoutes } from '~/modules/attribute-value/attribute-value.route';
 import { authRoutes } from '~/modules/auth/auth.route';
 import { categoryRoutes } from '~/modules/category/category.route';
 import { healthRoutes } from '~/modules/health/route/health.route';
 import { productRoutes } from '~/modules/product/product.route';
 import { productAttributeRoutes } from '~/modules/product-attribute/product-attribute.route';
 import { productVariantRoutes } from '~/modules/product-variant/product-variant.route';
+import { productVariantOptionRoutes } from '~/modules/product-variant-option/product-variant-option.route';
 import { userRoutes } from '~/modules/user/user.route';
 import { variantRoutes } from '~/modules/variant/variant.route';
 import { variantOptionRoutes } from '~/modules/variant-option/variant-option.route';
@@ -23,6 +24,7 @@ const appRoutes = (app: Application): void => {
   app.use(BASE_PATH + '/variant', variantRoutes());
   app.use(BASE_PATH + '/variant-option', variantOptionRoutes());
   app.use(BASE_PATH + '/product-variant', productVariantRoutes());
+  app.use(BASE_PATH + '/product-variant-option', productVariantOptionRoutes());
   app.use(BASE_PATH + '/category', categoryRoutes());
   app.use(BASE_PATH + '/product', productRoutes());
   app.use(BASE_PATH + '/user', userRoutes());

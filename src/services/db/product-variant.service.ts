@@ -29,12 +29,12 @@ class ProductVariantService {
 
   public findById = async <Key extends keyof ProductVariant>(
     id: ProductVariant['id'],
-    keys: Key[] = ['id', 'variantOptionId', 'productId', 'createdAt', 'updatedAt'] as Key[]
+    keys: Key[] = ['id', 'stock', 'price', 'sku', 'barcode', 'createdAt', 'updatedAt'] as Key[]
   ) => {
-    const productVariant = (await prisma.productVariant.findUnique({
+    const productVariant = await prisma.productVariant.findUnique({
       where: { id },
       select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
-    })) as Pick<ProductVariant, Key> | null;
+    });
 
     if (!productVariant) {
       throw ErrNotFound.withLog(`The product variant with ${id} not found`);

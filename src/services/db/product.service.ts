@@ -31,6 +31,9 @@ class ProductService {
   public findById = async (id: Product['id']) => {
     const product = await prisma.product.findUnique({
       where: { id },
+      omit: {
+        categoryId: true
+      },
       include: {
         category: true,
         productAttributes: {
@@ -41,11 +44,6 @@ class ProductService {
               }
             }
           }
-        },
-        productVariants: {
-          include: {
-            variantOption: true
-          }
         }
       }
     });
@@ -54,7 +52,7 @@ class ProductService {
       throw ErrNotFound.withLog(`The product with ${id} not found`);
     }
 
-    return this.formatProductAttributeValues(product);
+    return this.formatProductResponse(product);
   };
 
   public update = async (id: Product['id'], data: ProductUpdateDTO) => {
@@ -89,14 +87,23 @@ class ProductService {
     };
   };
 
-  private formatProductAttributeValues = (
-    product: Product & { productAttributes: { attributeValue: { attribute: { name: string }; value: string } }[] }
+  private formatProductResponse = (
+    product: Omit<Product, 'categoryId'> & {
+      productAttributes: {
+        attributeValue: {
+          id: string;
+          value: string;
+          attribute: { name: string };
+        };
+      }[];
+    }
   ) => {
     const { productAttributes, ...restProduct } = product;
 
     return {
       ...restProduct,
       attributes: productAttributes.map((item) => ({
+        id: item.attributeValue.id,
         name: item.attributeValue.attribute.name,
         value: item.attributeValue.value
       }))

@@ -41,6 +41,11 @@ class ProductService {
               }
             }
           }
+        },
+        productVariants: {
+          include: {
+            variantOption: true
+          }
         }
       }
     });

@@ -48,20 +48,3 @@ export const productIdDTOSchema = productSchema
   .required();
 
 export type ProductIdDTO = z.infer<typeof productIdDTOSchema>;
-
-export const productAttributeSchema = z.object({
-  id: z.string().uuid(),
-  productId: z.string().uuid(),
-  attributeId: z.string().uuid(),
-  createdAt: z.date(),
-  updatedAt: z.date()
-});
-
-export type ProductAttributeDTO = z.infer<typeof productAttributeSchema>;
-
-export const productAttributeCreateDTOSchema = productAttributeSchema.pick({
-  productId: true,
-  attributeId: true
-});
-
-export type ProductAttributeCreateDTO = z.infer<typeof productAttributeCreateDTOSchema>;

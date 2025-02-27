@@ -5,6 +5,7 @@ import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
 import type {
   ProductAttributeCreateDTO,
+  ProductAttributeDTO,
   ProductAttributeUpdateDTO
 } from '~/modules/product-attribute/product-attribute.schema';
 import { type Paginated, PagingDTO } from '~/shared/model';
@@ -12,11 +13,9 @@ import { type Paginated, PagingDTO } from '~/shared/model';
 class ProductAttributeService {
   public create = async (data: ProductAttributeCreateDTO): Promise<ProductAttribute> => {
     const newId = v7();
-    const newProductAttribute: ProductAttribute = {
+    const newProductAttribute: ProductAttributeDTO = {
       ...data,
-      id: newId,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: newId
     };
 
     return prisma.productAttribute.create({
@@ -28,7 +27,7 @@ class ProductAttributeService {
 
   public findById = async <Key extends keyof ProductAttribute>(
     id: ProductAttribute['id'],
-    keys: Key[] = ['id', 'attributeValueId', 'productId', 'createdAt', 'updatedAt'] as Key[]
+    keys: Key[] = ['id', 'attributeValueId', 'productId'] as Key[]
   ) => {
     const productAttribute = (await prisma.productAttribute.findUnique({
       where: { id },
@@ -57,8 +56,7 @@ class ProductAttributeService {
     const skip = (paging.page - 1) * paging.limit;
     const result = await prisma.productAttribute.findMany({
       skip,
-      take: paging.limit,
-      orderBy: { createdAt: 'desc' }
+      take: paging.limit
     });
 
     return {

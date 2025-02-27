@@ -15,9 +15,7 @@ class ProductVariantOptionService {
     const newId = v7();
     const newProductVariantOption: ProductVariantOptionDTO = {
       ...data,
-      id: newId,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: newId
     };
 
     return prisma.productVariantOption.create({
@@ -29,7 +27,7 @@ class ProductVariantOptionService {
 
   public findById = async <Key extends keyof ProductVariantOption>(
     id: ProductVariantOption['id'],
-    keys: Key[] = ['id', 'productVariantId', 'variantOptionId', 'createdAt', 'updatedAt'] as Key[]
+    keys: Key[] = ['id', 'productVariantId', 'variantOptionId'] as Key[]
   ) => {
     const productVariantOption = (await prisma.productVariantOption.findUnique({
       where: { id },
@@ -58,8 +56,7 @@ class ProductVariantOptionService {
     const skip = (paging.page - 1) * paging.limit;
     const result = await prisma.productVariantOption.findMany({
       skip,
-      take: paging.limit,
-      orderBy: { createdAt: 'desc' }
+      take: paging.limit
     });
 
     return {

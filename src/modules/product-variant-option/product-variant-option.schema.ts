@@ -3,9 +3,7 @@ import z from 'zod';
 export const productVariantOptionSchema = z.object({
   id: z.string().uuid(),
   productVariantId: z.string().uuid(),
-  variantOptionId: z.string().uuid(),
-  createdAt: z.date(),
-  updatedAt: z.date()
+  variantOptionId: z.string().uuid()
 });
 
 export type ProductVariantOptionDTO = z.infer<typeof productVariantOptionSchema>;

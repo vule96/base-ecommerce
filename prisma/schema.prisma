@@ -22,7 +22,11 @@ model User {
   role            user_role    @default(user) @map("role")
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  tokens          Token[]
+
+  tokens  Token[]
+  orders  Order[]
+  reviews Review[]
+  carts   Cart[]
 
   @@index([status], map: "idx_user_status")
   @@index([role], map: "idx_user_role")
@@ -37,9 +41,9 @@ model Token {
   ipAddress     String?  @map("ip_address") @db.VarChar(45)
   userAgent     String?  @map("user_agent") @db.VarChar(100)
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  userId        String   @map("user_id") @db.Uuid
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "idx_token_user_id")
   @@index([isBlacklisted], map: "idx_blacklisted")
@@ -47,19 +51,19 @@ model Token {
 }
 
 model Product {
-  id                String             @id @default(uuid()) @map("id") @db.Uuid
-  name              String             @unique @map("name") @db.VarChar(100)
-  slug              String             @unique @map("slug") @db.VarChar(100)
-  description       String             @map("description") @db.Text
-  price             Decimal            @map("price") @db.Decimal(10, 2)
-  stock             Int                @default(0) @map("stock") @db.Integer
-  status            product_status?    @default(active) @map("status")
-  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id          String          @id @default(uuid()) @map("id") @db.Uuid
+  name        String          @unique @map("name") @db.VarChar(100)
+  slug        String          @unique @map("slug") @db.VarChar(100)
+  description String          @map("description") @db.Text
+  status      product_status? @default(active) @map("status")
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
   categoryId        String?            @map("category_id") @db.Uuid
   category          Category?          @relation(fields: [categoryId], references: [id])
   productAttributes ProductAttribute[]
   productVariants   ProductVariant[]
+  reviews           Review[]
 
   @@index([slug], map: "idx_product_slug")
   @@index([status], map: "idx_product_status")
@@ -75,9 +79,10 @@ model Category {
   status    category_status? @default(active) @map("status")
   createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
-  parent    Category?        @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children  Category[]       @relation("CategoryHierarchy")
-  products  Product[]
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
 
   @@index([slug], map: "idx_category_slug")
   @@index([status], map: "idx_category_status")
@@ -86,20 +91,22 @@ model Category {
 }
 
 model Attribute {
-  id              String           @id @default(uuid()) @map("id") @db.Uuid
-  name            String           @unique @map("name") @db.VarChar(100)
-  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id        String   @id @default(uuid()) @map("id") @db.Uuid
+  name      String   @unique @map("name") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
   attributeValues AttributeValue[]
 
   @@map("attribute")
 }
 
 model AttributeValue {
-  id                String             @id @default(uuid()) @map("id") @db.Uuid
-  value             String             @db.VarChar(100)
-  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id        String   @id @default(uuid()) @map("id") @db.Uuid
+  value     String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
   attributeId       String             @map("attribute_id") @db.Uuid
   attribute         Attribute          @relation(fields: [attributeId], references: [id], onDelete: Cascade)
   productAttributes ProductAttribute[]
@@ -109,9 +116,8 @@ model AttributeValue {
 }
 
 model ProductAttribute {
-  id               String         @id @default(uuid()) @map("id") @db.Uuid
-  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id String @id @default(uuid()) @map("id") @db.Uuid
+
   productId        String         @map("product_id") @db.Uuid
   product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   attributeValueId String         @map("attribute_value_id") @db.Uuid
@@ -122,20 +128,21 @@ model ProductAttribute {
 }
 
 model Variant {
-  id             String          @id @default(uuid()) @map("id") @db.Uuid
-  name           String          @map("name") @db.VarChar(100)
-  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id        String   @id @default(uuid()) @map("id") @db.Uuid
+  name      String   @map("name") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
   variantOptions VariantOption[]
 
   @@map("variant")
 }
 
 model VariantOption {
-  id                    String                 @id @default(uuid()) @map("id") @db.Uuid
-  value                 String                 @db.VarChar(100)
-  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt             DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id        String   @id @default(uuid()) @map("id") @db.Uuid
+  value     String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
   variantId             String                 @map("variant_id") @db.Uuid
   variant               Variant                @relation(fields: [variantId], references: [id], onDelete: Cascade)
   productVariantOptions ProductVariantOption[]
@@ -145,16 +152,20 @@ model VariantOption {
 }
 
 model ProductVariant {
-  id                    String                 @id @default(uuid()) @map("id") @db.Uuid
-  price                 Decimal                @map("price") @db.Decimal(10, 2)
-  stock                 Int                    @default(0) @map("stock") @db.Integer
-  sku                   String                 @unique @map("sku") @db.VarChar(50)
-  barcode               String?                @unique @map("barcode") @db.VarChar(50)
-  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt             DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id        String   @id @default(uuid()) @map("id") @db.Uuid
+  price     Decimal  @map("price") @db.Decimal(10, 2)
+  stock     Int      @default(0) @map("stock") @db.Integer
+  sku       String   @unique @map("sku") @db.VarChar(50)
+  barcode   String?  @map("barcode") @db.VarChar(50)
+  soldCount Int      @default(0) @map("sold_count") @db.Integer
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
   productId             String                 @map("product_id") @db.Uuid
   product               Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
   productVariantOptions ProductVariantOption[]
+  orderItems            OrderItem[]
+  cartItems             CartItem[]
 
   @@index([productId], map: "idx_product_variant_product_id")
   @@index([sku], map: "idx_product_variant_sku")
@@ -162,9 +173,8 @@ model ProductVariant {
 }
 
 model ProductVariantOption {
-  id               String         @id @default(uuid()) @map("id") @db.Uuid
-  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  id String @id @default(uuid()) @map("id") @db.Uuid
+
   productVariantId String         @map("product_variant_id") @db.Uuid
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
   variantOptionId  String         @map("variant_option_id") @db.Uuid
@@ -172,6 +182,79 @@ model ProductVariantOption {
 
   @@index([productVariantId, variantOptionId], map: "idx_product_variant_option")
   @@map("product_variant_option")
+}
+
+model Order {
+  id          String       @id @default(uuid()) @map("id") @db.Uuid
+  totalAmount Decimal      @map("total_amount") @db.Decimal(10, 2)
+  status      order_status @default(pending) @map("status")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  userId     String      @map("user_id") @db.Uuid
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([userId], map: "idx_order_user_id")
+  @@map("order")
+}
+
+model OrderItem {
+  id       String  @id @default(uuid()) @map("id") @db.Uuid
+  quantity Int     @map("quantity") @db.Integer
+  price    Decimal @map("price") @db.Decimal(10, 2)
+
+  orderId          String         @map("order_id") @db.Uuid
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productVariantId String         @map("product_variant_id") @db.Uuid
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
+  @@index([orderId], map: "idx_order_item_order_id")
+  @@index([productVariantId], map: "idx_order_item_product_variant_id")
+  @@map("order_item")
+}
+
+model Review {
+  id        String   @id @default(uuid()) @map("id") @db.Uuid
+  rating    Int      @map("rating") @db.Integer
+  comment   String?  @map("comment") @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  userId    String  @map("user_id") @db.Uuid
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id") @db.Uuid
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId], map: "idx_review_product_id")
+  @@index([userId], map: "idx_review_user_id")
+  @@map("review")
+}
+
+model Cart {
+  id        String   @id @default(uuid()) @map("id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  userId    String     @map("user_id") @db.Uuid
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
+
+  @@index([userId], map: "idx_cart_user_id")
+  @@map("cart")
+}
+
+model CartItem {
+  id       String @id @default(uuid()) @map("id") @db.Uuid
+  quantity Int    @map("quantity") @db.Integer
+
+  cartId           String         @map("cart_id") @db.Uuid
+  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productVariantId String         @map("product_variant_id") @db.Uuid
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
+  @@index([cartId], map: "idx_cart_item_cart_id")
+  @@index([productVariantId], map: "idx_cart_item_product_variant_id")
+  @@map("cart_item")
 }
 
 enum user_status {
@@ -191,6 +274,13 @@ enum product_status {
 enum category_status {
   active
   inactive
+}
+
+enum order_status {
+  pending
+  processing
+  completed
+  canceled
 }
 
 enum user_role {

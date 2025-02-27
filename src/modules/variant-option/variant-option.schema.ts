@@ -6,8 +6,7 @@ export const variantOptionSchema = z.object({
   id: z.string().uuid(),
   value: z.string().min(2, ErrValueAtLeast2Chars.message),
   variantId: z.string().uuid(),
-  createdAt: z.date(),
-  updatedAt: z.date()
+  createdAt: z.date()
 });
 
 export type VariantOptionDTO = z.infer<typeof variantOptionSchema>;

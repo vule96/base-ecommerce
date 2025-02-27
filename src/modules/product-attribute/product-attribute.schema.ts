@@ -3,9 +3,7 @@ import z from 'zod';
 export const productAttributeSchema = z.object({
   id: z.string().uuid(),
   productId: z.string().uuid(),
-  attributeValueId: z.string().uuid(),
-  createdAt: z.date(),
-  updatedAt: z.date()
+  attributeValueId: z.string().uuid()
 });
 
 export type ProductAttributeDTO = z.infer<typeof productAttributeSchema>;

@@ -3,17 +3,20 @@ import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
-import type { VariantOptionCreateDTO, VariantOptionUpdateDTO } from '~/modules/variant-option/variant-option.schema';
+import type {
+  VariantOptionCreateDTO,
+  VariantOptionDTO,
+  VariantOptionUpdateDTO
+} from '~/modules/variant-option/variant-option.schema';
 import { Paginated, PagingDTO } from '~/shared/model';
 
 class VariantOptionService {
   public create = async (data: VariantOptionCreateDTO): Promise<VariantOption> => {
     const newId = v7();
-    const newVariantOption: VariantOption = {
+    const newVariantOption: VariantOptionDTO = {
       ...data,
       id: newId,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date()
     };
 
     return prisma.variantOption.create({
@@ -25,7 +28,7 @@ class VariantOptionService {
 
   public findById = async <Key extends keyof VariantOption>(
     id: VariantOption['id'],
-    keys: Key[] = ['id', 'value', 'variantId', 'createdAt', 'updatedAt'] as Key[]
+    keys: Key[] = ['id', 'value', 'variantId', 'createdAt'] as Key[]
   ) => {
     const variantOption = (await prisma.variantOption.findUnique({
       where: { id },

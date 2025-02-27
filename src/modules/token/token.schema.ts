@@ -8,8 +8,7 @@ export const tokenSchema = z.object({
   ipAddress: z.string().optional(),
   userAgent: z.string().optional(),
   expiresAt: z.date(),
-  createdAt: z.date(),
-  updatedAt: z.date()
+  createdAt: z.date()
 });
 
 export type TokenDTO = z.infer<typeof tokenSchema>;

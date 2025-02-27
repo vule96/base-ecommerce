@@ -13,8 +13,7 @@ class TokenService {
       ...data,
       id: newId,
       isBlacklisted: data.isBlacklisted || false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date()
     };
 
     return prisma.token.create({
@@ -26,16 +25,7 @@ class TokenService {
 
   public findByCond = async <Key extends keyof Token>(
     condition: TokenCondDTO,
-    keys: Key[] = [
-      'id',
-      'token',
-      'isBlacklisted',
-      'expiresAt',
-      'ipAddress',
-      'userAgent',
-      'createdAt',
-      'updatedAt'
-    ] as Key[]
+    keys: Key[] = ['id', 'token', 'isBlacklisted', 'expiresAt', 'ipAddress', 'userAgent', 'createdAt'] as Key[]
   ) => {
     const token = (await prisma.token.findFirst({
       where: condition,

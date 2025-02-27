@@ -8,6 +8,9 @@ CREATE TYPE "product_status" AS ENUM ('draft', 'active', 'inactive', 'archived')
 CREATE TYPE "category_status" AS ENUM ('active', 'inactive');
 
 -- CreateEnum
+CREATE TYPE "order_status" AS ENUM ('pending', 'processing', 'completed', 'canceled');
+
+-- CreateEnum
 CREATE TYPE "user_role" AS ENUM ('user', 'admin');
 
 -- CreateTable
@@ -39,7 +42,6 @@ CREATE TABLE "token" (
     "ip_address" VARCHAR(45),
     "user_agent" VARCHAR(100),
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "user_id" UUID NOT NULL,
 
     CONSTRAINT "token_pkey" PRIMARY KEY ("id")
@@ -51,8 +53,6 @@ CREATE TABLE "product" (
     "name" VARCHAR(100) NOT NULL,
     "slug" VARCHAR(100) NOT NULL,
     "description" TEXT NOT NULL,
-    "price" DECIMAL(10,2) NOT NULL,
-    "stock" INTEGER NOT NULL DEFAULT 0,
     "status" "product_status" DEFAULT 'active',
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -98,8 +98,6 @@ CREATE TABLE "attribute_value" (
 -- CreateTable
 CREATE TABLE "product_attribute" (
     "id" UUID NOT NULL,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "product_id" UUID NOT NULL,
     "attribute_value_id" UUID NOT NULL,
 
@@ -121,7 +119,6 @@ CREATE TABLE "variant_option" (
     "id" UUID NOT NULL,
     "value" VARCHAR(100) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "variant_id" UUID NOT NULL,
 
     CONSTRAINT "variant_option_pkey" PRIMARY KEY ("id")
@@ -134,6 +131,7 @@ CREATE TABLE "product_variant" (
     "stock" INTEGER NOT NULL DEFAULT 0,
     "sku" VARCHAR(50) NOT NULL,
     "barcode" VARCHAR(50),
+    "sold_count" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "product_id" UUID NOT NULL,
@@ -144,12 +142,65 @@ CREATE TABLE "product_variant" (
 -- CreateTable
 CREATE TABLE "product_variant_option" (
     "id" UUID NOT NULL,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "product_variant_id" UUID NOT NULL,
     "variant_option_id" UUID NOT NULL,
 
     CONSTRAINT "product_variant_option_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "order" (
+    "id" UUID NOT NULL,
+    "total_amount" DECIMAL(10,2) NOT NULL,
+    "status" "order_status" NOT NULL DEFAULT 'pending',
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "user_id" UUID NOT NULL,
+
+    CONSTRAINT "order_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "order_item" (
+    "id" UUID NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "price" DECIMAL(10,2) NOT NULL,
+    "order_id" UUID NOT NULL,
+    "product_variant_id" UUID NOT NULL,
+
+    CONSTRAINT "order_item_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "review" (
+    "id" UUID NOT NULL,
+    "rating" INTEGER NOT NULL,
+    "comment" TEXT,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "user_id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
+
+    CONSTRAINT "review_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "cart" (
+    "id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "user_id" UUID NOT NULL,
+
+    CONSTRAINT "cart_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "cart_item" (
+    "id" UUID NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "cart_id" UUID NOT NULL,
+    "product_variant_id" UUID NOT NULL,
+
+    CONSTRAINT "cart_item_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -216,9 +267,6 @@ CREATE INDEX "idx_variant_option_variant_id" ON "variant_option"("variant_id");
 CREATE UNIQUE INDEX "product_variant_sku_key" ON "product_variant"("sku");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "product_variant_barcode_key" ON "product_variant"("barcode");
-
--- CreateIndex
 CREATE INDEX "idx_product_variant_product_id" ON "product_variant"("product_id");
 
 -- CreateIndex
@@ -226,6 +274,30 @@ CREATE INDEX "idx_product_variant_sku" ON "product_variant"("sku");
 
 -- CreateIndex
 CREATE INDEX "idx_product_variant_option" ON "product_variant_option"("product_variant_id", "variant_option_id");
+
+-- CreateIndex
+CREATE INDEX "idx_order_user_id" ON "order"("user_id");
+
+-- CreateIndex
+CREATE INDEX "idx_order_item_order_id" ON "order_item"("order_id");
+
+-- CreateIndex
+CREATE INDEX "idx_order_item_product_variant_id" ON "order_item"("product_variant_id");
+
+-- CreateIndex
+CREATE INDEX "idx_review_product_id" ON "review"("product_id");
+
+-- CreateIndex
+CREATE INDEX "idx_review_user_id" ON "review"("user_id");
+
+-- CreateIndex
+CREATE INDEX "idx_cart_user_id" ON "cart"("user_id");
+
+-- CreateIndex
+CREATE INDEX "idx_cart_item_cart_id" ON "cart_item"("cart_id");
+
+-- CreateIndex
+CREATE INDEX "idx_cart_item_product_variant_id" ON "cart_item"("product_variant_id");
 
 -- AddForeignKey
 ALTER TABLE "token" ADD CONSTRAINT "token_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -256,3 +328,27 @@ ALTER TABLE "product_variant_option" ADD CONSTRAINT "product_variant_option_prod
 
 -- AddForeignKey
 ALTER TABLE "product_variant_option" ADD CONSTRAINT "product_variant_option_variant_option_id_fkey" FOREIGN KEY ("variant_option_id") REFERENCES "variant_option"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "order" ADD CONSTRAINT "order_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "order_item" ADD CONSTRAINT "order_item_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "order_item" ADD CONSTRAINT "order_item_product_variant_id_fkey" FOREIGN KEY ("product_variant_id") REFERENCES "product_variant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "review" ADD CONSTRAINT "review_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "review" ADD CONSTRAINT "review_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "cart" ADD CONSTRAINT "cart_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "cart_item" ADD CONSTRAINT "cart_item_cart_id_fkey" FOREIGN KEY ("cart_id") REFERENCES "cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "cart_item" ADD CONSTRAINT "cart_item_product_variant_id_fkey" FOREIGN KEY ("product_variant_id") REFERENCES "product_variant"("id") ON DELETE CASCADE ON UPDATE CASCADE;

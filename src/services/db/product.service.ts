@@ -44,6 +44,19 @@ class ProductService {
               }
             }
           }
+        },
+        productVariants: {
+          include: {
+            productVariantOptions: {
+              include: {
+                variantOption: {
+                  include: {
+                    variant: true
+                  }
+                }
+              }
+            }
+          }
         }
       }
     });
@@ -96,9 +109,9 @@ class ProductService {
           attribute: { name: string };
         };
       }[];
-    }
+    } & { productVariants: any }
   ) => {
-    const { productAttributes, ...restProduct } = product;
+    const { productAttributes, productVariants, ...restProduct } = product;
 
     return {
       ...restProduct,
@@ -106,8 +119,42 @@ class ProductService {
         id: item.attributeValue.id,
         name: item.attributeValue.attribute.name,
         value: item.attributeValue.value
+      })),
+      variants: productVariants.map(({ id, price, stock, sku, barcode, soldCount, productVariantOptions }: any) => ({
+        id,
+        price,
+        stock,
+        sku,
+        barcode,
+        soldCount,
+        options: this.groupVariantOptionsByProductVariantId(productVariantOptions)
       }))
     };
+  };
+
+  private groupVariantOptionsByProductVariantId = (options: any[]) => {
+    const result: Record<string, any> = {};
+
+    options.forEach((item) => {
+      const productVariantId = item.productVariantId;
+
+      if (!result[productVariantId]) {
+        result[productVariantId] = [];
+      }
+
+      const variantOption = {
+        id: item.variantOption.id,
+        name: item.variantOption.variant.name,
+        value: item.variantOption.value
+      };
+
+      result[productVariantId].push(variantOption);
+    });
+
+    return Object.keys(result).map((productVariantId) => ({
+      productVariantId,
+      variantOptions: result[productVariantId]
+    }));
   };
 }
 

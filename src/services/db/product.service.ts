@@ -1,4 +1,4 @@
-import { Product } from '@prisma/client';
+import { AttributeValue, Product, ProductVariant, ProductVariantOption, Variant, VariantOption } from '@prisma/client';
 import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
@@ -103,13 +103,15 @@ class ProductService {
   private formatProductResponse = (
     product: Omit<Product, 'categoryId'> & {
       productAttributes: {
-        attributeValue: {
-          id: string;
-          value: string;
-          attribute: { name: string };
-        };
+        attributeValue: Pick<AttributeValue, 'id' | 'value'> & { attribute: { name: string } };
       }[];
-    } & { productVariants: any }
+    } & {
+      productVariants: Array<
+        Pick<ProductVariant, 'id' | 'price' | 'stock' | 'sku' | 'barcode' | 'soldCount'> & {
+          productVariantOptions: Array<ProductVariantOption & { variantOption: VariantOption & { variant: Variant } }>;
+        }
+      >;
+    }
   ) => {
     const { productAttributes, productVariants, ...restProduct } = product;
 
@@ -120,7 +122,7 @@ class ProductService {
         name: item.attributeValue.attribute.name,
         value: item.attributeValue.value
       })),
-      variants: productVariants.map(({ id, price, stock, sku, barcode, soldCount, productVariantOptions }: any) => ({
+      variants: productVariants.map(({ id, price, stock, sku, barcode, soldCount, productVariantOptions }) => ({
         id,
         price,
         stock,
@@ -132,7 +134,9 @@ class ProductService {
     };
   };
 
-  private groupVariantOptionsByProductVariantId = (options: any[]) => {
+  private groupVariantOptionsByProductVariantId = (
+    options: Array<ProductVariantOption & { variantOption: VariantOption & { variant: Variant } }>
+  ) => {
     const result: Record<string, any> = {};
 
     options.forEach((item) => {

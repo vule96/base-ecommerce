@@ -4,7 +4,7 @@ import { v7 } from 'uuid';
 import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
 import type { ProductCreateDTO, ProductDTO, ProductUpdateDTO } from '~/modules/product/product.schema';
-import { ProductStatus } from '~/shared/interface';
+import { type KeyValue, ProductStatus } from '~/shared/interface';
 import type { ToNullProps } from '~/shared/interface/utility';
 import type { Paginated, PagingDTO } from '~/shared/model';
 import { toSlug } from '~/utils/string';
@@ -137,7 +137,7 @@ class ProductService {
   private groupVariantOptionsByProductVariantId = (
     options: Array<ProductVariantOption & { variantOption: VariantOption & { variant: Variant } }>
   ) => {
-    const result: Record<string, any> = {};
+    const result: Record<string, KeyValue[]> = {};
 
     options.forEach((item) => {
       const productVariantId = item.productVariantId;
@@ -146,7 +146,7 @@ class ProductService {
         result[productVariantId] = [];
       }
 
-      const variantOption = {
+      const variantOption: KeyValue = {
         id: item.variantOption.id,
         name: item.variantOption.variant.name,
         value: item.variantOption.value

@@ -33,3 +33,9 @@ export interface TokenResponse {
   refreshToken: string;
   refreshTokenExpiresIn: number;
 }
+
+export interface KeyValue {
+  id: string;
+  name: string;
+  value: string;
+}

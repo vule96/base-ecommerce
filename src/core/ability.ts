@@ -4,6 +4,7 @@ import {
   Attribute,
   AttributeValue,
   Cart,
+  CartItem,
   Category,
   Order,
   Product,
@@ -32,6 +33,7 @@ export type AppSubjects =
       ProductVariantOption: ProductVariantOption;
       Order: Order;
       Cart: Cart;
+      CartItem: CartItem;
     }>
   | 'all';
 

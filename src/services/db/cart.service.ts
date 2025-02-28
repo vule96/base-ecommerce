@@ -5,7 +5,7 @@ import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
 import type { CartCreateDTO, CartDTO, CartUpdateDTO } from '~/modules/cart/cart.schema';
 import type { ToNullProps } from '~/shared/interface/utility';
-import { Paginated, PagingDTO } from '~/shared/model';
+import type { Paginated, PagingDTO } from '~/shared/model';
 
 class CartService {
   public create = async (data: ToNullProps<CartCreateDTO>): Promise<Cart> => {

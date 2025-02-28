@@ -3,6 +3,7 @@ import { Application } from 'express';
 import { attributeRoutes } from '~/modules/attribute/attribute.route';
 import { attributeValueRoutes } from '~/modules/attribute-value/attribute-value.route';
 import { authRoutes } from '~/modules/auth/auth.route';
+import { cartRoutes } from '~/modules/cart/cart.route';
 import { categoryRoutes } from '~/modules/category/category.route';
 import { healthRoutes } from '~/modules/health/route/health.route';
 import { orderRoutes } from '~/modules/order/order.route';
@@ -30,6 +31,7 @@ const appRoutes = (app: Application): void => {
   app.use(BASE_PATH + '/product', productRoutes());
   app.use(BASE_PATH + '/user', userRoutes());
   app.use(BASE_PATH + '/order', orderRoutes());
+  app.use(BASE_PATH + '/cart', cartRoutes());
 };
 
 export { appRoutes };

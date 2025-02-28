@@ -3,6 +3,7 @@ import { createPrismaAbility, PrismaQuery, Subjects } from '@casl/prisma';
 import {
   Attribute,
   AttributeValue,
+  Cart,
   Category,
   Order,
   Product,
@@ -30,6 +31,7 @@ export type AppSubjects =
       ProductVariant: ProductVariant;
       ProductVariantOption: ProductVariantOption;
       Order: Order;
+      Cart: Cart;
     }>
   | 'all';
 

@@ -8,6 +8,7 @@ import { cartItemRoutes } from '~/modules/cart-item/cart-item.route';
 import { categoryRoutes } from '~/modules/category/category.route';
 import { healthRoutes } from '~/modules/health/route/health.route';
 import { orderRoutes } from '~/modules/order/order.route';
+import { orderItemRoutes } from '~/modules/order-item/order-item.route';
 import { productRoutes } from '~/modules/product/product.route';
 import { productAttributeRoutes } from '~/modules/product-attribute/product-attribute.route';
 import { productVariantRoutes } from '~/modules/product-variant/product-variant.route';
@@ -32,6 +33,7 @@ const appRoutes = (app: Application): void => {
   app.use(BASE_PATH + '/product', productRoutes());
   app.use(BASE_PATH + '/user', userRoutes());
   app.use(BASE_PATH + '/order', orderRoutes());
+  app.use(BASE_PATH + '/order-item', orderItemRoutes());
   app.use(BASE_PATH + '/cart', cartRoutes());
   app.use(BASE_PATH + '/cart-item', cartItemRoutes());
 };

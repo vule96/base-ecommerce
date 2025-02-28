@@ -7,6 +7,7 @@ import {
   CartItem,
   Category,
   Order,
+  OrderItem,
   Product,
   ProductAttribute,
   ProductVariant,
@@ -32,6 +33,7 @@ export type AppSubjects =
       ProductVariant: ProductVariant;
       ProductVariantOption: ProductVariantOption;
       Order: Order;
+      OrderItem: OrderItem;
       Cart: Cart;
       CartItem: CartItem;
     }>

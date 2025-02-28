@@ -22,6 +22,13 @@ export enum ProductStatus {
   ARCHIVED = 'archived'
 }
 
+export enum OrderStatus {
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  COMPLETED = 'completed',
+  CANCELLED = 'canceled'
+}
+
 export interface TokenPayload {
   sub: string;
   role: UserRole;

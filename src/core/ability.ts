@@ -4,6 +4,7 @@ import {
   Attribute,
   AttributeValue,
   Category,
+  Order,
   Product,
   ProductAttribute,
   ProductVariant,
@@ -28,6 +29,7 @@ export type AppSubjects =
       VariantOption: VariantOption;
       ProductVariant: ProductVariant;
       ProductVariantOption: ProductVariantOption;
+      Order: Order;
     }>
   | 'all';
 

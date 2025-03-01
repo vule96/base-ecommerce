@@ -32,3 +32,13 @@ export const cartItemIdDTOSchema = cartItemSchema
   .required();
 
 export type CartItemIdDTO = z.infer<typeof cartItemIdDTOSchema>;
+
+export const cartItemCondDTOSchema = cartItemSchema
+  .pick({
+    cartId: true,
+    productVariantId: true,
+    quantity: true
+  })
+  .partial();
+
+export type CartItemCondDTO = z.infer<typeof cartItemCondDTOSchema>;

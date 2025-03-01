@@ -4,7 +4,12 @@ import { checkPermission } from '~/middlewares/ability.middleware';
 import { auth } from '~/middlewares/auth.middleware';
 import { ValidationSource, validatorMiddleware } from '~/middlewares/validator.middleware';
 import { cartController } from '~/modules/cart/cart.controller';
-import { cartCreateDTOSchema, cartIdDTOSchema, cartUpdateDTOSchema } from '~/modules/cart/cart.schema';
+import {
+  cartAddItemDTOSchema,
+  cartCreateDTOSchema,
+  cartIdDTOSchema,
+  cartUpdateDTOSchema
+} from '~/modules/cart/cart.schema';
 import { pagingDTOSchema } from '~/shared/model';
 
 const router: Router = express.Router();
@@ -18,6 +23,13 @@ export function cartRoutes(): Router {
     checkPermission('create', 'Cart'),
     validatorMiddleware(cartCreateDTOSchema),
     cartController.create
+  );
+  router.post(
+    '/add',
+    auth,
+    checkPermission('create', 'CartItem'),
+    validatorMiddleware(cartAddItemDTOSchema),
+    cartController.add
   );
   router.patch(
     '/:id',

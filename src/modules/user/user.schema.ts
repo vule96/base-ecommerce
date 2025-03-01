@@ -62,3 +62,17 @@ export const userIdDTOSchema = userSchema
   .required();
 
 export type UserIdDTO = z.infer<typeof userIdDTOSchema>;
+
+export const userCondDTOSchema = userSchema
+  .pick({
+    email: true,
+    username: true,
+    firstName: true,
+    lastName: true,
+    phone: true,
+    role: true,
+    status: true
+  })
+  .partial();
+
+export type UserCondDTO = z.infer<typeof userCondDTOSchema>;

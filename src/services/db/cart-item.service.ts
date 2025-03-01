@@ -3,7 +3,12 @@ import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
-import type { CartItemCreateDTO, CartItemDTO, CartItemUpdateDTO } from '~/modules/cart-item/cart-item.schema';
+import type {
+  CartItemCondDTO,
+  CartItemCreateDTO,
+  CartItemDTO,
+  CartItemUpdateDTO
+} from '~/modules/cart-item/cart-item.schema';
 import type { ToNullProps } from '~/shared/interface/utility';
 import type { Paginated, PagingDTO } from '~/shared/model';
 
@@ -34,6 +39,14 @@ class CartItemService {
     if (!cartItem) {
       throw ErrNotFound.withLog(`The cart item with ${id} not found`);
     }
+    return cartItem;
+  };
+
+  public findByCond = async (condition: CartItemCondDTO) => {
+    const cartItem = await prisma.cartItem.findFirst({
+      where: condition
+    });
+
     return cartItem;
   };
 

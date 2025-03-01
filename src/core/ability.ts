@@ -16,6 +16,7 @@ import {
   Variant,
   VariantOption
 } from '@prisma/client';
+import type { Request } from 'express';
 
 import { UserRole } from '~/shared/interface';
 
@@ -41,7 +42,7 @@ export type AppSubjects =
 
 type AppAbility = PureAbility<[string, AppSubjects], PrismaQuery>;
 
-export const defineAbilityFor = (role: UserRole): MongoAbility => {
+export const defineAbilityFor = (role: UserRole, req: Request): MongoAbility => {
   const { can, build } = new AbilityBuilder<AppAbility>(createPrismaAbility);
 
   switch (role) {
@@ -51,6 +52,7 @@ export const defineAbilityFor = (role: UserRole): MongoAbility => {
 
     case UserRole.USER:
       can('read', 'Product');
+      can('create', 'CartItem', { cart: { userId: req.user.id } });
       break;
   }
 

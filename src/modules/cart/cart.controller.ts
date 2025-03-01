@@ -47,6 +47,16 @@ class CartController {
       paging: carts.paging
     }).send(res);
   };
+
+  public add = async (req: Request, res: Response) => {
+    logger.info(`CartController.add - request received`);
+    const productVariant = await cartService.add(req.body, req.user);
+
+    new OkResponse({
+      message: 'Add to cart successfully',
+      metadata: productVariant
+    }).send(res);
+  };
 }
 
 export const cartController: CartController = new CartController();

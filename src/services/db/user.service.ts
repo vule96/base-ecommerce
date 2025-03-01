@@ -4,7 +4,7 @@ import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
 import { ErrConflict, ErrNotFound } from '~/core/error';
-import type { UserRegistrationDTO } from '~/modules/user/user.schema';
+import type { UserCondDTO, UserRegistrationDTO } from '~/modules/user/user.schema';
 import { UserRole, UserStatus } from '~/shared/interface';
 import { lowerCase } from '~/utils/string';
 
@@ -124,6 +124,21 @@ class UserService {
 
     if (!user) {
       throw ErrNotFound.withLog(`The user with ${id} not found`);
+    }
+
+    return user;
+  };
+
+  public findByCond = async (condition: UserCondDTO) => {
+    const user = await prisma.user.findFirst({
+      where: condition,
+      include: {
+        carts: true
+      }
+    });
+
+    if (!user) {
+      throw ErrNotFound.withLog(`The user not found`);
     }
 
     return user;

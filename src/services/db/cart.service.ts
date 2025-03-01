@@ -3,9 +3,13 @@ import { v7 } from 'uuid';
 
 import { prisma } from '~/components/prisma';
 import { ErrNotFound } from '~/core/error';
-import type { CartCreateDTO, CartDTO, CartUpdateDTO } from '~/modules/cart/cart.schema';
+import type { CartAddItemDTO, CartCondDTO, CartCreateDTO, CartDTO, CartUpdateDTO } from '~/modules/cart/cart.schema';
+import { productVariantService } from '~/services/db/product-variant.service';
+import { userService } from '~/services/db/user.service';
 import type { ToNullProps } from '~/shared/interface/utility';
 import type { Paginated, PagingDTO } from '~/shared/model';
+
+import { cartItemService } from './cart-item.service';
 
 class CartService {
   public create = async (data: ToNullProps<CartCreateDTO>): Promise<Cart> => {
@@ -39,6 +43,18 @@ class CartService {
     return cart;
   };
 
+  public findByCond = async <Key extends keyof Cart>(
+    condition: CartCondDTO,
+    keys: Key[] = ['id', 'userId', 'createdAt', 'updatedAt'] as Key[]
+  ) => {
+    const cart = (await prisma.cart.findFirst({
+      where: condition,
+      select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {})
+    })) as Pick<Cart, Key> | null;
+
+    return cart;
+  };
+
   public update = async (id: Cart['id'], data: CartUpdateDTO) => {
     await this.findById(id, ['id']);
 
@@ -67,6 +83,36 @@ class CartService {
         total: count
       }
     };
+  };
+
+  public add = async ({ productVariantId, quantity }: CartAddItemDTO, currentUser: UserPayload) => {
+    const user = await userService.findById(currentUser.id);
+    await productVariantService.findById(productVariantId);
+
+    let cart = await cartService.findByCond({ userId: user.id });
+
+    if (!cart) {
+      cart = await this.create({ userId: currentUser.id });
+    }
+
+    const existingCartItem = await cartItemService.findByCond({
+      cartId: cart.id,
+      productVariantId
+    });
+
+    if (existingCartItem) {
+      await cartItemService.update(existingCartItem.id, {
+        quantity: existingCartItem.quantity + quantity
+      });
+    } else {
+      await cartItemService.create({
+        cartId: cart.id,
+        productVariantId,
+        quantity
+      });
+    }
+
+    return cart;
   };
 }
 

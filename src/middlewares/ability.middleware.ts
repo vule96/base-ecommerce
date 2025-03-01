@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 import { type Actions, AppSubjects, defineAbilityFor } from '~/core/ability';
 import { ErrForbidden, ErrUnauthorized } from '~/core/error';
@@ -10,7 +10,7 @@ export const checkPermission = (action: Actions, resourceType: AppSubjects) => {
       return next(ErrUnauthorized.withLog('Please authenticate'));
     }
 
-    const ability = defineAbilityFor(req.user.role as UserRole);
+    const ability = defineAbilityFor(req.user.role as UserRole, req);
 
     if (!ability.can(action, resourceType)) {
       return next(ErrForbidden.withLog('Access denied'));
